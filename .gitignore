@@ -1,0 +1,47 @@
+﻿# Dependencies and build output
+node_modules/
+bin/
+obj/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Local data (databases, backups, attachments, logs, run state)
+/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.log
+/logs/
+
+# Local tooling and caches
+.tools/
+.vs/
+.vscode/
+.idea/
+.npmrc
+.npm-cache/
+.playwright-mcp/
+
+# Playwright e2e run artifacts (reports, traces, screenshots, the throwaway e2e database)
+web/test-results/
+web/playwright-report/
+web/e2e/.data/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+env.ps1
+*.pfx
+*.pem
+*.key
+appsettings.*.local.json
+secrets.json
+
+# OS
+Thumbs.db
+.DS_Store

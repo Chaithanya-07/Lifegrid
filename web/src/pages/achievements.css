@@ -1,0 +1,29 @@
+.achievements .ach-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
+.achievements .card { margin: 0; }
+.ach-level { grid-column: span 7; display: flex; align-items: center; gap: 1.4rem; padding: 1.5rem; background: radial-gradient(circle at 100% 0, var(--accent-soft) 0, transparent 55%), var(--card); border-color: var(--accent-line); }
+.ach-level .level-medal { width: 5.6rem; height: 5.6rem; }
+.ach-level .level-medal strong { font-size: 2.2rem; }
+.ach-level-body { flex: 1; min-width: 0; }
+.ach-level-body h3 { margin: 0; font-size: 1.4rem; letter-spacing: -0.03em; }
+.ach-level-body .hint { margin: 0.1rem 0 0.4rem; }
+.ach-stats { grid-column: span 5; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+.ach-badges { grid-column: span 8; }
+.ach-goal { grid-column: span 4; }
+.ach-history { grid-column: 1 / -1; }
+.ach-badges .badge-grid { grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }
+.reward-table { list-style: none; margin: 0; padding: 0; display: grid; }
+.reward-table li { display: grid; grid-template-columns: minmax(0, 1fr) auto 5.5rem; gap: 1rem; align-items: center; padding: 0.65rem 0; border-top: 1px solid var(--border); }
+.reward-table li:first-child { border-top: 0; }
+.reward-table time { color: var(--muted); font-size: 0.82rem; }
+.reward-table b { text-align: right; }
+
+@media (max-width: 1100px) {
+  .ach-level, .ach-stats, .ach-badges, .ach-goal { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .ach-level { flex-direction: column; text-align: center; }
+  .ach-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reward-table li { grid-template-columns: minmax(0, 1fr) auto; }
+  .reward-table time { grid-column: 1; grid-row: 2; }
+  .reward-table b { grid-row: 1 / span 2; grid-column: 2; }
+}

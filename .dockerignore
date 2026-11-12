@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.git/
+data/
+web/
+docs/
+scripts/
+*.db
+*.db-wal
+*.db-shm
+.env*

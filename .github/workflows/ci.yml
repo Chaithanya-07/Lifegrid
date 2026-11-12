@@ -1,0 +1,106 @@
+name: CI
+
+# Continuously validate Lifegrid on pushes to main and on all pull requests. Nothing in this
+# pipeline touches real user data: unit and API tests use temporary SQLite databases, and the
+# e2e job drives the dedicated throwaway instance on ports 5292/5293 (web/playwright.config.ts).
+# No secrets are needed — the app has none — so nothing sensitive can leak into logs.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs of the same branch so failures stay readable.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Frontend — install, lint, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Reproducible dependency install
+        working-directory: web
+        run: npm ci
+      - name: Lint (oxlint)
+        working-directory: web
+        run: npm run lint
+      - name: Unit tests (Vitest)
+        working-directory: web
+        run: npm test
+      - name: Production build (tsc + vite)
+        working-directory: web
+        run: npm run build
+      - name: Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/dist
+          retention-days: 7
+
+  api:
+    name: Backend — restore, build, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore and build
+        run: dotnet build api/TaskFlow.Tests/TaskFlow.Tests.csproj
+      # The integration tests create their own temporary SQLite databases and data folders;
+      # they never read or write the repository's data/ directory.
+      - name: Backend tests
+        run: dotnet test api/TaskFlow.Tests/TaskFlow.Tests.csproj --no-build --logger "trx" --results-directory "test-results/api"
+      - name: Upload backend test results (on any outcome)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: test-results/api
+          retention-days: 7
+
+  e2e:
+    name: Playwright e2e (isolated throwaway instance)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Reproducible dependency install
+        working-directory: web
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Build the API once up front
+        run: dotnet build api/TaskFlow.Api/TaskFlow.Api.csproj -c Debug
+      # The suite boots its own API (ports 5292) and frontend dev server (5293) against a throwaway
+      # SQLite database under web/test-results/e2e-data, recreated every run by global-setup.
+      # Up to 2 retries per test are configured in playwright.config.ts for CI.
+      - name: Run Playwright e2e suite
+        working-directory: web
+        run: npx playwright test
+      - name: Upload Playwright report and failure artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            web/playwright-report
+            web/test-results
+          retention-days: 7
