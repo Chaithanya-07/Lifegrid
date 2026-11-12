@@ -153,9 +153,16 @@ test.describe('mobile navigation is keyboard and screen-reader accessible', () =
     expect(await focusInside()).toBe(true)
     for (let i = 0; i < 30; i++) await page.keyboard.press('Shift+Tab')
     expect(await focusInside()).toBe(true)
+    // The page content behind the drawer is inert: no background control can be focused, even
+    // programmatically, so the drawer is truly modal while it is open.
+    await expect(page.locator('.main-col')).toHaveAttribute('inert')
+    await page.getByRole('button', { name: /Open command palette/ }).focus()
+    expect(await focusInside()).toBe(true)
     // Escape closes the drawer and focus returns to the control that opened it.
     await page.keyboard.press('Escape')
     await expect(page.locator('.shell')).not.toHaveClass(/nav-open/)
     await expect(menu).toBeFocused()
+    // The background becomes keyboard-reachable again as soon as the drawer closes.
+    await expect(page.locator('.main-col')).not.toHaveAttribute('inert')
   })
 })

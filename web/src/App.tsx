@@ -97,15 +97,21 @@ function Shell() {
   useGlobalShortcuts(handlers)
 
   // The mobile drawer is a transient menu surface: it takes the focus when it opens, Tab cycles inside
-  // it, Escape closes it, and closing returns focus to the menu button that opened it. A dialog opened
-  // above it (body class `modal-open`: task editor, command palette, confirmations) receives the keys
-  // first, so Escape and Tab only ever reach the topmost surface — the same rule as the modal stack.
+  // it, Escape closes it, and closing returns focus to the menu button that opened it. The page content
+  // is inert while the drawer is open, so no background element can receive focus or be reached by a
+  // screen reader's virtual cursor; a dialog opened above (body class `modal-open`: task editor,
+  // command palette, confirmations) receives the keys first, so Escape and Tab only ever reach the
+  // topmost surface — the same rule as the modal stack. Resizing to desktop hides the drawer, so it is
+  // closed immediately rather than left open on the desktop shell.
   useEffect(() => {
     if (!navOpen) return
     const side = sideRef.current
     if (!side) return
     const opener = document.activeElement as HTMLElement | null
     side.focus({ preventScroll: true })
+    const desktop = window.matchMedia?.('(min-width: 901px)') ?? null
+    const onDesktopResize = () => desktop?.matches && setNavOpen(false)
+    desktop?.addEventListener?.('change', onDesktopResize)
     const onKey = (e: KeyboardEvent) => {
       if (document.body.classList.contains('modal-open')) return
       if (e.key === 'Escape') {
@@ -130,6 +136,7 @@ function Shell() {
     }
     window.addEventListener('keydown', onKey)
     return () => {
+      desktop?.removeEventListener?.('change', onDesktopResize)
       window.removeEventListener('keydown', onKey)
       opener?.focus?.()
     }
@@ -172,7 +179,7 @@ function Shell() {
       </aside>
       <div className="scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
 
-      <div className="main-col">
+      <div className="main-col" inert={navOpen || undefined}>
         <header className="topbar">
           <button type="button" className="menu-btn icon-btn" aria-label="Open navigation" aria-expanded={navOpen} onClick={() => setNavOpen(true)}>
             <Icon name="menu" />
