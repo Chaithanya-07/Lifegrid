@@ -1,6 +1,7 @@
 # Lifegrid — Forward-progress change report
 
-Covers five work increments. Database / migrations: none touched — no schema, data, or storage change in any increment.
+Covers six work increments — the fifth and sixth are same-day release reviews ("final release review and deployment
+readiness" then "final GitHub release preparation"). Database / migrations: none touched — no schema, data, or storage change in any increment.
 **Record-count audit result (all increments): no artificial record-count restrictions exist, and none were introduced.**
 
 ---
@@ -521,3 +522,93 @@ A minimal **Playwright e2e suite** (login → create task → complete → XP aw
   templates; `Cors__Origins__0` and the frontend hosting need their real values at deploy time.
 - **Accessibility:** no assistive-technology (NVDA/VoiceOver) pass; drag-change announcements open.
 - Screenshots for the README do not exist yet (the README deliberately claims nothing about them).
+
+---
+
+# Increment 6 — Final GitHub release preparation (2026-11-12)
+
+Completes the release-review brief ("Increment 5: Final GitHub Release Preparation") on top of the
+same-day release-review pass; nothing from the previous increments was repeated or redone.
+
+## 1. Changes implemented
+
+- **Documentation consistency (Git status).** Three documents still claimed "this workspace has no
+  Git metadata" — false since the increment-4 pass. Updated: `docs/GITHUB_PUBLISHING.md` (rewritten
+  with a dated, verified state list: local repository on `main` with the recorded history; no
+  remote; repository `lifegrid-productivity-app` not created or verified; no Actions run; the
+  source-only archive already exists and excludes `.git` metadata — produced with `git archive`),
+  `docs/RAILWAY_DEPLOYMENT.md` (intro), `docs/DEPLOYMENT_PROGRESS.md` (intro). CHANGES.md and
+  README's CI sentence already matched reality and were left as they were.
+- **Mobile drawer made truly modal (Part 3).** On top of the same-day focus-trap work: the page
+  content (`.main-col`) is now `inert` while the drawer is open, so background controls cannot be
+  focused even programmatically and are skipped by a screen reader's virtual cursor; the drawer
+  also closes automatically if the window is resized past the mobile breakpoint (it cannot sit
+  open on the desktop shell, whose menu button is hidden). The `matchMedia` call is guarded for
+  jsdom. Desktop navigation is unchanged (`navOpen` can only be set by the mobile-only menu
+  button).
+- **Regression tests extended:** the drawer e2e test now also asserts the background is `inert`,
+  that focusing a background control programmatically does not steal focus out of the drawer, and
+  that the background is keyboard-reachable again the moment the drawer closes.
+- **Correction to the previous report:** the earlier same-day report said README screenshots do
+  not exist; they do (10 PNG tracks under `docs/screenshots/`, embedded in the README and included
+  in the release archive). Records updated.
+- Docs updated: README accessibility bullet, ACCESSIBILITY_AUDIT.md and E2E_TESTING.md (inert +
+  resize-close), this file.
+
+## 2. Accessibility results
+
+- Verified (Playwright, Chromium): drawer focus enters on open (7 keyboard e2e tests total now);
+  Tab/Shift+Tab remain inside for 30 forward and 30 backward stops; a background control cannot
+  take focus programmatically while the drawer is open (`main-col` inert); Escape closes it; focus
+  returns to the opening menu button; the background is reachable again immediately after. The
+  axe-core audit of 13 states is unchanged and clean.
+- **No NVDA/VoiceOver testing was performed and none is claimed.**
+
+## 3. Git status and commit details
+
+- Branch `main`; history `2a67cd3` → `5626e0e` → `9c0da89` → `0c7b3db` → (this pass's two commits,
+  code and then docs). Working tree clean after committing; history preserved (no resets, no new
+  repository); identity `Kurra Chaithanya <chaithanya7869@gmail.com>`; **no remote configured;
+  nothing pushed**.
+
+## 4. Security audit findings
+
+- Tracked files: no `data/`, backups, attachments, Data Protection key files, `*.pem/*.pfx/*.key`,
+  `.env` with values, pid files, logs, or build artifacts. The only `.env*` track is the intended
+  placeholder-only `.env.example`.
+- Secret-pattern scan over tracked content: only code identifiers, method names and a clearly
+  documented throwaway-test password (`correct-horse-battery` used by e2e against isolated
+  databases) — no credentials or tokens.
+- The runtime `data/` directory (database, WAL/SHM, cold snapshot, backups, logs, `run/pids.json`)
+  stays untracked and out of the release archive; the archive itself was verified entry-by-entry
+  in the previous pass and remains unchanged (10 README screenshots are tracked and included).
+
+## 5. CI status
+
+- `.github/workflows/ci.yml` re-verified with no further changes needed (three jobs, NuGet + npm
+  caches, uploads, triggers). **No GitHub Actions run has occurred** — publication is blocked
+  pending explicit approval, so no CI status is claimed.
+
+## 6. Test results (actually executed in the workspace)
+
+- Frontend unit: **335/335**; lint: pass (2 pre-existing warnings); production build: pass.
+- Backend: **366/366**. Playwright e2e: full suite re-run after the changes (figures in the final
+  report message). Keyboard/accessibility suite: **7/7**.
+
+## 7. Remaining blockers
+
+Unchanged from the previous pass: repository creation + first push need explicit approval; no
+Actions run yet; live deployment unverified; no NVDA/VoiceOver pass; drag-change announcements.
+
+## 8. Exact steps required for public release
+
+1. Create the GitHub repository `lifegrid-productivity-app` (public or private — confirm owner and
+   visibility first). Nothing in this workspace does that until approved.
+2. `git remote add origin <url>`, then `git push -u origin main` (all 6 commits preserved as-is).
+3. Confirm the commit list, default branch and visibility on GitHub; confirm `.env.example` and no
+   data/key files in the web file listing.
+4. Wait for the Actions run of `.github/workflows/ci.yml` on `main`; open the run's artifacts
+   (TRX, Playwright report, dist) and confirm the three jobs pass. Only then add the README badge.
+5. Optional deploy path: follow `docs/RAILWAY_DEPLOYMENT.md` (volume `/data`, set
+   `Cors__Origins__0` and `TZ`; `AllowedHosts` is auto-filled from `RAILWAY_PUBLIC_DOMAIN`), or any
+   host equivalent; verify `/health` before declaring active.

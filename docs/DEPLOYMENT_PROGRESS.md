@@ -1,8 +1,9 @@
 # Lifegrid deployment status
 
-Deployment is not verified. The current workspace has no Git metadata, so its remote, GitHub repository, Actions state, hosting
-provider, and public URL cannot be checked here. No production migration or deployment was performed during the current
-implementation work.
+Deployment is not verified. The local Git repository is initialized on `main` with its commit history recorded in
+[CHANGES](../CHANGES.md); no remote is configured, no public repository exists, and no GitHub Actions workflow has run, so the
+remote, repository, Actions state, hosting provider, and public URL cannot be checked here. No production migration or
+deployment was performed during the current implementation work.
 
 ## Local implementation readiness
 

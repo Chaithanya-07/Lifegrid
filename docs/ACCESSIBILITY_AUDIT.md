@@ -79,8 +79,11 @@ states use `role="status"`, and banners use `role="alert"`.
 
 Fixed in the release-readiness pass: the mobile navigation drawer now takes focus when it opens,
 traps Tab while open (a dialog opened above — task editor, command palette — is served first, so
-Escape still closes only the topmost surface) and returns focus to the menu button when it closes;
-covered by two tests in `web/e2e/keyboard.spec.ts`.
+Escape still closes only the topmost surface) and returns focus to the menu button when it closes.
+The page content is **inert** while the drawer is open, so background elements cannot be focused
+by any means (not even programmatically) and are skipped by a screen reader's virtual cursor; the
+drawer also closes itself if the window is resized to desktop width. It therefore behaves as a
+modal surface while it is open; covered by two tests in `web/e2e/keyboard.spec.ts`.
 
 
 These are *not* violations in the enforced rule sets and were left unchanged:

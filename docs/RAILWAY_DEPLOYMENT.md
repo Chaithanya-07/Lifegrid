@@ -1,9 +1,10 @@
 # Railway deployment template (API + SQLite volume)
 
 This document describes the deployment configuration in the root `Dockerfile` and `railway.json`; it is not confirmation that
-Lifegrid is currently deployed. This workspace has no Git metadata, so verify the repository, host, service settings, and live
-health endpoint before treating any deployment as active. SQLite, attachments, backups, and cookie-encryption keys require
-persistent storage mounted at `/data`.
+Lifegrid is currently deployed. The local Git repository is initialized on `main` (commit history in
+[CHANGES](../CHANGES.md)), but no remote is configured and no public repository exists yet, so the host, service settings, and live
+health endpoint must be verified after publishing before treating any deployment as active. SQLite, attachments, backups, and
+cookie-encryption keys require persistent storage mounted at `/data`.
 
 ## What is in the repository
 

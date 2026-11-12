@@ -156,6 +156,20 @@ a Done task, in-memory gamification/focus aggregation, and Escape not reaching t
   package cache was added to the backend and e2e jobs. It has **not** been executed on GitHub yet —
   no CI-passing claim is made until a real Actions run completes.
 
+## Delivered in the same-day GitHub release-preparation follow-up
+
+- **Documentation consistency (Git status):** the remaining "workspace has no Git metadata" claims
+  (GITHUB_PUBLISHING.md, RAILWAY_DEPLOYMENT.md intro, DEPLOYMENT_PROGRESS.md intro) were corrected to
+  the verified state — local repository on `main` with recorded history, no remote, no public
+  repository, no GitHub Actions run, and the source-only archive (which excludes `.git` metadata)
+  already produced and verified.
+- **Mobile drawer completed as a modal surface:** the page content is `inert` while the drawer is
+  open (background controls cannot be focused even programmatically and are skipped by screen
+  readers' virtual cursors), the drawer closes on resize to desktop width, focus management, the
+  Tab trap and the focus restoration are covered by expanded e2e assertions.
+- Correction: the release archive contains the 10 tracked README screenshots (the previous note
+  "no screenshots exist" was wrong) — verified in the archive's entry list.
+
 ## Still in progress
 
 - Screen-reader testing with NVDA/VoiceOver (the automated axe audit covers the rule-based WCAG layer and the keyboard behaviours
