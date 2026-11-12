@@ -63,6 +63,27 @@ builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
 var connectionString = config.GetConnectionString("Default")
     ?? throw new InvalidOperationException("ConnectionStrings:Default is not configured.");
+
+// ---- Development data-directory portability ----
+// The Development configuration ships relative data paths (no machine-specific path is committed); they are
+// anchored at the content root — the project directory under `dotnet run` — so the resolved location does
+// not depend on the terminal's working directory. LIFEGRID_DATA_DIRECTORY (config key LifeGrid:DataDirectory)
+// overrides the anchor. Absolute paths (set by the test factories or an explicit deployment) are never
+// touched, so tests and production configuration are unaffected by this block.
+var devDataSource = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString).DataSource;
+if (isDevelopment && !string.IsNullOrEmpty(devDataSource) && !Path.IsPathRooted(devDataSource))
+{
+    // The documented friendly env name, in addition to the standard LifeGrid__DataDirectory mapping.
+    var dataDirConfig = Environment.GetEnvironmentVariable("LIFEGRID_DATA_DIRECTORY") is { Length: > 0 } envData
+        ? envData
+        : config["LifeGrid:DataDirectory"];
+    var dataDir = TaskFlow.Api.Data.DevDataPaths.ResolveDataDirectory(builder.Environment.ContentRootPath, dataDirConfig);
+    Directory.CreateDirectory(dataDir);
+    connectionString = TaskFlow.Api.Data.DevDataPaths.RebaseConnectionString(connectionString, dataDir);
+    config["Backups:Directory"] = TaskFlow.Api.Data.DevDataPaths.Rebase(config["Backups:Directory"], dataDir);
+    config["Attachments:Directory"] = TaskFlow.Api.Data.DevDataPaths.Rebase(config["Attachments:Directory"], dataDir);
+}
+
 builder.Services.AddDbContext<TaskFlowDbContext>(o => o.UseSqlite(connectionString));
 
 // ---- authentication: a signed, encrypted, HttpOnly session cookie; no token ever reaches JavaScript ----
@@ -139,6 +160,16 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
     .AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
+
+// Safe diagnostic: the development log states exactly where the active database and its folders are.
+if (isDevelopment)
+{
+    static string Full(string? path) => string.IsNullOrEmpty(path) ? "" : Path.GetFullPath(path);
+    var resolved = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString).DataSource;
+    app.Logger.LogInformation(
+        "LifeGrid development data — database: {DbPath}, backups: {BackupsDir}, attachments: {AttachmentsDir}",
+        Full(resolved), Full(config["Backups:Directory"]), Full(config["Attachments:Directory"]));
+}
 
 // Apply pending migrations on startup; this also creates the SQLite file if it is missing.
 using (var scope = app.Services.CreateScope())

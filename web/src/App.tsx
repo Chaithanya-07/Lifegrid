@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { CommandPalette, type Command } from './components/CommandPalette'
 import { HelpCenter } from './components/HelpCenter'
 import { Icon } from './components/Icon'
-import { Modal } from './components/Modal'
+import { Modal, FOCUSABLE } from './components/Modal'
 import { NotificationBell } from './components/NotificationBell'
 import { PeriodBadge } from './components/PeriodBadge'
 import { QUICK_ADD_EVENT, QuickAdd } from './components/QuickAdd'
@@ -78,6 +78,7 @@ function Shell() {
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [palette, setPalette] = useState(false)
   const [overlay, setOverlay] = useState<'help' | 'shortcuts' | null>(null)
+  const sideRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     document.title = `${TITLES[route]} · Lifegrid`
@@ -95,12 +96,43 @@ function Shell() {
   )
   useGlobalShortcuts(handlers)
 
-  // Escape closes the mobile drawer.
+  // The mobile drawer is a transient menu surface: it takes the focus when it opens, Tab cycles inside
+  // it, Escape closes it, and closing returns focus to the menu button that opened it. A dialog opened
+  // above it (body class `modal-open`: task editor, command palette, confirmations) receives the keys
+  // first, so Escape and Tab only ever reach the topmost surface — the same rule as the modal stack.
   useEffect(() => {
     if (!navOpen) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setNavOpen(false)
+    const side = sideRef.current
+    if (!side) return
+    const opener = document.activeElement as HTMLElement | null
+    side.focus({ preventScroll: true })
+    const onKey = (e: KeyboardEvent) => {
+      if (document.body.classList.contains('modal-open')) return
+      if (e.key === 'Escape') {
+        setNavOpen(false)
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = Array.from(side.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (x) => x.offsetParent !== null || x === document.activeElement,
+      )
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      const inside = side.contains(document.activeElement)
+      if (e.shiftKey && (!inside || document.activeElement === first)) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && (!inside || document.activeElement === last)) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      opener?.focus?.()
+    }
   }, [navOpen])
 
   const commands = useMemo<Command[]>(() => {
@@ -122,7 +154,7 @@ function Shell() {
       <a href="#main" className="skip-link" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }}>
         Skip to content
       </a>
-      <aside className="side" aria-label="Sidebar">
+      <aside ref={sideRef} tabIndex={-1} className="side" aria-label="Sidebar">
         <div className="brand">
           <span className="brand-mark"><Icon name="grid" /></span>
           <span className="brand-name">Lifegrid</span>

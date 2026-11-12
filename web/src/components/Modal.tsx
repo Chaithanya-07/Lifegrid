@@ -32,7 +32,8 @@ export function isTopmostOverlay(id: symbol) {
   return stack[stack.length - 1] === id
 }
 
-const FOCUSABLE =
+/** Shared "can receive keyboard focus" selector (drawer and dialogs trap with the same rule). */
+export const FOCUSABLE =
   'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
 /**

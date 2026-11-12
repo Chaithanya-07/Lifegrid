@@ -135,4 +135,27 @@ test.describe('mobile navigation is keyboard and screen-reader accessible', () =
     // ... and sign-out remains labelled for screen readers.
     await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
   })
+
+  test('the drawer takes focus, traps Tab while open and restores focus to the menu button', async ({ page }) => {
+    await registerNewUser(page)
+    await page.goto('#/dashboard')
+    const menu = page.getByRole('button', { name: 'Open navigation' })
+    await menu.focus()
+    await page.keyboard.press('Enter')
+    // Focus lands on the drawer region itself, so the next Tab enters the navigation.
+    await expect(page.locator('.side')).toBeFocused()
+    await page.keyboard.press('Tab')
+    const focusInside = () =>
+      page.evaluate(() => document.querySelector('.side')?.contains(document.activeElement) ?? false)
+    expect(await focusInside()).toBe(true)
+    // Cycling forward and backward never leaves the open drawer.
+    for (let i = 0; i < 30; i++) await page.keyboard.press('Tab')
+    expect(await focusInside()).toBe(true)
+    for (let i = 0; i < 30; i++) await page.keyboard.press('Shift+Tab')
+    expect(await focusInside()).toBe(true)
+    // Escape closes the drawer and focus returns to the control that opened it.
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.shell')).not.toHaveClass(/nav-open/)
+    await expect(menu).toBeFocused()
+  })
 })
