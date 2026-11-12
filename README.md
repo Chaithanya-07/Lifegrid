@@ -77,7 +77,7 @@ The API awards task-completion XP once per task: Low = 5, Medium = 10, High = 15
 - **Backend:** ASP.NET Core Web API on .NET 10, Entity Framework Core, and SQLite
 - **Authentication:** Existing signed and encrypted cookie sessions; cookies and Data Protection identifiers are intentionally preserved
 - **Routing/state:** Existing hash-based routes and React context providers
-- **License:** MIT ([LICENSE](LICENSE)); © by the Lifegrid contributors
+- **License:** MIT ([LICENSE](LICENSE)); © Kurra Chaithanya
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs the frontend lint/unit/build, the backend restore/build/test, and the Playwright e2e suite (against the isolated throwaway instance) on pushes to `main` and on pull requests; reports and failure artifacts are uploaded. Status badge to add when the repository is public.
 
 The `TaskFlow.*` project and namespace names, storage keys, database filename, backup naming, and `taskflow-export` JSON schema are retained where they are compatibility-sensitive. User-facing product branding is Lifegrid.

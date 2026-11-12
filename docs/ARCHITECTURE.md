@@ -71,13 +71,18 @@ History is simply the earlier tasks in the series (`GET /api/tasks/{id}/occurren
 transaction as the task status change. The `XpLedger` stores an auditable reward history; a unique per-user reward key protects
 daily bonuses and a unique `(UserId, TaskId)` index prevents duplicate task awards. Deleting a task nulls its ledger reference
 without deleting its rewards. Levels, achievements, streaks and weekly totals are derived from persisted records. Weekly goals
-are stored per user with a database constraint limiting them to 1–100.
+are stored per user one-row-per-account (unique `(UserId)`) with a database constraint limiting them to 1–100; concurrent
+first-time goal writers resolve the unique race by converting the losing insert into an update (last write wins), so two tabs
+opening Lifegrid at once never fail the request. Aggregations run in SQL over the indexed tables.
 
 ### Reminders and notifications
 
 There is no background service. The open web page calls `POST /api/notifications/sync` every 30 s (paused while the tab is
 hidden). The server turns due, un-notified reminders into `Notifications` rows (deduplicated by a unique key), plus one
-"N tasks are overdue" digest per day and a per-task alert for timed tasks that passed their time today. **If Lifegrid is not
+"N tasks are overdue" digest per day and a per-task alert for timed tasks that passed their time today. Two open tabs syncing
+at once cannot duplicate or fail: a writer losing the unique-key race drops only its committed duplicates and retries, so the
+loser never returns 500 and the reminder "notified" stamps always persist (`SqliteUnique.cs` matches only the
+`SQLITE_CONSTRAINT_UNIQUE` error; every other database failure propagates). **If Lifegrid is not
 open in a browser tab, nothing can alert you** — that is a browser limitation, and a service worker was deliberately not added
 because it still cannot wake a closed browser without a push service (which would need an external paid/cloud dependency).
 
@@ -115,4 +120,5 @@ store should move to server-side paging; the API already supports `status`, `q`,
 |-------|---------|----------|
 | Backend | xUnit + `WebApplicationFactory` against a throw-away SQLite file with a controllable clock | `api/TaskFlow.Tests` |
 | Frontend | Vitest + Testing Library against an in-memory fake of the HTTP API | `web/src/*.test.ts(x)`, `web/src/testing/` |
-| Browser | End-to-end browser coverage is not currently wired into this repository | Add it during final QA, using a separate temporary database |
+| Browser | Playwright against the real frontend + API on an isolated throwaway SQLite instance (ports 5292/5293) — see [E2E_TESTING](E2E_TESTING.md) | `web/e2e`, `npm run test:e2e` |
+| Concurrency | Unique-index race regressions interleaving the real stage/commit paths plus concurrent-HTTP storms | `api/TaskFlow.Tests/ConcurrencyTests.cs` |

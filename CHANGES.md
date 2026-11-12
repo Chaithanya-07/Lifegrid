@@ -32,7 +32,7 @@ Covers four work increments. Database / migrations: none touched — no schema, 
 **Environment configuration (Part 4).** `.env.example` created (placeholders only; no credentials — the
    app has none). Verified by booting the API from env-only configuration against a throwaway database:
    `/health` returned `{"status":"ok"}` and the throwaway folder was cleaned afterwards.
-**LICENSE (Part 5).** MIT, © the Lifegrid contributors (chosen by the owner).
+**LICENSE (Part 5).** MIT, © Kurra Chaithanya (chosen by the owner).
 **CI (Part 6).** `.github/workflows/ci.yml` — three jobs: (1) frontend `npm ci` → lint → unit → build;
    (2) backend restore/build → tests (TRX results uploaded); (3) Playwright e2e on the existing isolated
    throwaway instance (ports 5292/5293, throwaway SQLite) with the Playwright report and failure

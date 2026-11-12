@@ -115,7 +115,7 @@ a Done task, in-memory gamification/focus aggregation, and Escape not reaching t
   outputs, test artifacts and `.playwright-mcp/` are excluded; no file was deleted to shrink the tree.
 - **`.env.example`** created: variable names with placeholders only; verified by booting the API from
   env-only configuration against a throwaway database (health check OK; `data/` untouched).
-- **LICENSE**: MIT, © the Lifegrid contributors.
+- **LICENSE**: MIT, © Kurra Chaithanya.
 - **CI**: `.github/workflows/ci.yml` — three jobs (frontend lint/unit/build, backend restore/build/test,
   Playwright e2e on the throwaway instance) using `npm ci`, uploading reports and failure artifacts,
   triggered on pushes to `main` and pull requests. Runs in GitHub Actions, not yet executed there.
@@ -123,7 +123,8 @@ a Done task, in-memory gamification/focus aggregation, and Escape not reaching t
 
 ## Still in progress
 
-- Full keyboard-path/screen-reader experience review; the automated axe audit covers the rule-based WCAG layer (see ACCESSIBILITY_AUDIT.md notes).
+- Screen-reader testing with NVDA/VoiceOver (the automated axe audit covers the rule-based WCAG layer and the keyboard behaviours
+  are automated in `web/e2e/keyboard.spec.ts`; a manual assistive-technology pass is still open — see ACCESSIBILITY_AUDIT.md).
 - Dashboard widgets use a fixed layout; the Customize panel shows or hides them but does not reorder them.
 - Review every user-facing product string and reconcile all remaining architecture, API, database, deployment, and publishing docs.
 - Add final migration, time-zone, gamification edge-case, API, and end-to-end coverage.
@@ -142,9 +143,10 @@ cd ..\api
 dotnet test TaskFlow.Tests\TaskFlow.Tests.csproj
 ```
 
-Latest verification: backend **353/353** tests passed (the new forwarded-header and stats-volume tests included); the frontend unit
-suite passed **335/335** with no unhandled errors; the **Playwright e2e suite passed 32/32** (19 journey tests including the
-13-state axe accessibility audit). The production build succeeds and lint exits successfully with two existing
+Latest verification: backend **357/357** tests passed (the forwarded-header, stats-volume and unique-race concurrency tests
+included); the frontend unit suite passed **335/335** with no unhandled errors; the **Playwright e2e suite passed 38/38**
+(19 journey tests, the 13-state axe accessibility audit, and 6 keyboard/screen-reader tests), re-verified from a fresh
+`git clone` alongside installs, build and every other check. The production build succeeds and lint exits successfully with two existing
 `unicorn(no-useless-fallback-in-spread)` warnings.
 
 The backend integration tests use temporary SQLite databases. Build/test outputs and test data must not be pointed at a production
