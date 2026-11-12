@@ -82,6 +82,26 @@ The API awards task-completion XP once per task: Low = 5, Medium = 10, High = 15
 
 The `TaskFlow.*` project and namespace names, storage keys, database filename, backup naming, and `taskflow-export` JSON schema are retained where they are compatibility-sensitive. User-facing product branding is Lifegrid.
 
+## Project structure
+
+```
+Lifegrid/
+├─ api/
+│  ├─ TaskFlow.Api/        ASP.NET Core Web API — Controllers → Services → EF Core (SQLite, additive migrations)
+│  └─ TaskFlow.Tests/      xUnit suite: WebApplicationFactory against throwaway SQLite files (366 tests)
+├─ web/
+│  ├─ src/                 React 19 + Vite: pages/, components/, focus/, hash routing, no runtime UI deps
+│  └─ e2e/                 Playwright suite driving the real app on the isolated ports 5292/5293 instance
+├─ docs/                   Architecture, accessibility audit, e2e guide, production security, deployment docs
+├─ docs/screenshots/       The images embedded above
+├─ .github/workflows/ci.yml  Frontend / backend / e2e jobs per push and pull request
+├─ Dockerfile              Production image (persistent /data volume)
+├─ docker-entrypoint.sh    Ownership fix, $PORT binding, privilege drop
+└─ railway.json            Railway deploy template (health check /health, single replica)
+```
+
+Names like `TaskFlow.*` (namespaces, cookie name, database filename, `taskflow-export` schema) are retained where compatibility matters; the product surface is Lifegrid.
+
 ## Run locally
 
 Prerequisites: .NET 10 SDK, Node.js, and npm.
