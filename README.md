@@ -1,5 +1,7 @@
 # Lifegrid
 
+[![CI](https://github.com/Chaithanya-07/Lifegrid/actions/workflows/ci.yml/badge.svg)](https://github.com/Chaithanya-07/Lifegrid/actions/workflows/ci.yml)
+
 Lifegrid is a personal productivity application for organizing tasks, planning time, and building consistent habits. It evolves the existing TaskFlow application rather than replacing it, retaining its React/TypeScript frontend, ASP.NET Core API, SQLite database, authentication, and established task workflows.
 
 ## Features
@@ -78,7 +80,7 @@ The API awards task-completion XP once per task: Low = 5, Medium = 10, High = 15
 - **Authentication:** Existing signed and encrypted cookie sessions; cookies and Data Protection identifiers are intentionally preserved
 - **Routing/state:** Existing hash-based routes and React context providers
 - **License:** MIT ([LICENSE](LICENSE)); © Kurra Chaithanya
-- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs the frontend lint/unit/build, the backend restore/build/test, and the Playwright e2e suite (against the isolated throwaway instance) on pushes to `main` and on pull requests; reports and failure artifacts are uploaded. Status badge to add when the repository is public.
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs the frontend lint/unit/build, the backend restore/build/test, and the Playwright e2e suite (against the isolated throwaway instance) on Windows runners, matching the deployment platform, on pushes to `main` and on pull requests; reports and failure artifacts are uploaded. The status badge above tracks it.
 
 The `TaskFlow.*` project and namespace names, storage keys, database filename, backup naming, and `taskflow-export` JSON schema are retained where they are compatibility-sensitive. User-facing product branding is Lifegrid.
 

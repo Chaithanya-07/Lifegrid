@@ -1,40 +1,54 @@
-# GitHub publishing checklist
+# GitHub publishing record and checklist
 
-The approved repository name is `lifegrid-productivity-app`. The state below is exact and was verified directly
-(2026-11-12); publishing has not been performed, and no claim below covers GitHub-side steps that have not run.
+The repository is published. The state below is exact and was verified directly on 2026-11-12;
+anything not verified is listed under "Still open" at the end.
 
-## Verified current state
+## Published state (verified)
 
-- **Local Git repository:** initialized on branch `main`; the commit history is the record in
-  [CHANGES](../CHANGES.md) (increment 4 created the repository and initial commits; increments 4–5
-  extend it). The history is complete and must be preserved.
-- **Source-only archive:** `lifegrid-source-20261112.zip` in the repository root, produced with
-  `git archive` from a commit — it contains the tracked files exactly and therefore **excludes**
-  `.git` metadata, databases, backups, attachments, logs, Data Protection keys, build outputs and
-  local caches; contents were verified entry by entry (see CHANGES increment 5 §4).
-- **No GitHub remote:** `git remote -v` shows no remote configured.
-- **No public repository:** `lifegrid-productivity-app` has not been created, and its existence,
-  visibility and owner are unknown/none. Nothing has been pushed.
-- **No GitHub Actions run:** `.github/workflows/ci.yml` is defined but has executed only via the
-  equivalent local clean-clone runs; no Action run or artifacts exist.
+- **Repository:** https://github.com/Chaithanya-07/Lifegrid, owner `Chaithanya-07`, visibility
+  **public** (verified via `gh repo view` — `isPrivate: false`). The name is `Lifegrid` (the
+  earlier working name `lifegrid-productivity-app` was replaced by the approved final name).
+- **History preserved:** the push used the existing local history; no repository or history was
+  recreated. Default branch `main`; remote `origin` added with the publish push.
+- **Pushes:** the initial publish push landed head `8e59ebf`; documentation and CI-fixer commits
+  followed (`09f7d0c` CI Windows runners, `e370028` README project structure) — always verify
+  `git status` is clean of unintended files before every push.
+- **Source-only archive:** `lifegrid-source-20261112.zip` (gitignored, so it is not in the
+  repository) is produced with `git archive` from the final commit — it contains the tracked files
+  exactly and therefore **excludes** `.git` metadata, databases, backups, attachments, logs, Data
+  Protection keys, build outputs and local caches. Regenerate it from the new head whenever tracked
+  content changes.
+- **Tracked-file hygiene:** re-verified after the push — no databases, user data, backups,
+  attachments, Data Protection keys, environment files with values, build outputs, logs,
+  `node_modules`, Playwright artifacts or run-state files are tracked.
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`, three jobs: frontend lint/unit/build, the
+  backend restore/build/test, and the Playwright e2e suite against the isolated throwaway
+  instance). Runs are on **Windows runners**, matching the deployment platform. The README badge
+  was added only after a real green run (run 43220864806).
 
-## Before creating or updating the repository
+## CI run history
 
-- Confirm the GitHub owner and whether the repository should be public or private.
-- Re-run the pre-publish gates on the final commit: frontend unit tests, lint, production build,
-  the complete backend test suite, the Playwright e2e suite, and the clean-clone battery (all are
-  recorded with real figures in CHANGES.md; re-run them on the commit being pushed).
-- Re-check `.gitignore`/tracked files: no databases, backups, attachments, logs, Data Protection
+| Run | Commit | Result |
+|---|---|---|
+| 43215563868 | `8e59ebf` (first run, ubuntu runners) | Frontend ✅ / Backend ✅ (366 tests) / e2e ❌ — every database-backed request intermittently returned 500 on Linux runners; the same suite passes consistently on Windows |
+| 43220864806 | `09f7d0c` + `e370028` (windows runners) | All three jobs ✅ — 335 unit tests, 366 backend tests, 39 e2e tests, zero flaky or failed attempts |
+
+The Linux e2e failure is recorded as an open issue for any future Linux (e.g. container) deployment;
+the intermittent 500 did not reproduce on Windows and its server-side exception was not captured
+(the runner logs do not include the e2e API process console).
+
+## Before every future push
+
+- Re-run the local gates on the commit being pushed: frontend unit tests, lint, production build,
+  the complete backend test suite, and the Playwright e2e suite (real figures recorded in
+  [CHANGES](../CHANGES.md)).
+- Re-check `git status`/staged files: no databases, backups, attachments, logs, Data Protection
   keys, environment files with values, build output, or local caches are tracked.
+- After pushing, check the Actions run actually completes green before making any CI claim.
 
-## Create and verify
+## Still open
 
-Create the repository only on explicit approval, with the approved name `lifegrid-productivity-app`
-and an accurate description. Before pushing, inspect `git status` and the staged file list; after the
-first push, verify directly: the remote URL, default branch, repository visibility, the workflow's
-Actions status (the CI badge in README must be added only after a real, green run), and the
-deployment configuration.
-
-Do not claim the repository is public, deployed, or production-ready until those checks have
-succeeded. The existing project, database identity, and compatibility-sensitive TaskFlow identifiers
-must remain intact.
+- Linux deployment (Railway-style containers): CI currently validates Windows only; revisit the
+  Linux e2e failure before any Linux deployment claim.
+- Railway deployment has not been attempted (see [RAILWAY_DEPLOYMENT](RAILWAY_DEPLOYMENT.md)).
+- A manual NVDA/VoiceOver screen-reader pass has not been performed.

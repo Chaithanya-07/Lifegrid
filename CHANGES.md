@@ -1,7 +1,7 @@
 # Lifegrid — Forward-progress change report
 
-Covers six work increments — the fifth and sixth are same-day release reviews ("final release review and deployment
-readiness" then "final GitHub release preparation"). Database / migrations: none touched — no schema, data, or storage change in any increment.
+Covers seven work increments — the fifth, sixth and seventh are same-day release passes ("final release review and deployment
+readiness", "final GitHub release preparation", then "final GitHub publishing"). Database / migrations: none touched — no schema, data, or storage change in any increment.
 **Record-count audit result (all increments): no artificial record-count restrictions exist, and none were introduced.**
 
 ---
@@ -612,3 +612,59 @@ Actions run yet; live deployment unverified; no NVDA/VoiceOver pass; drag-change
 5. Optional deploy path: follow `docs/RAILWAY_DEPLOYMENT.md` (volume `/data`, set
    `Cors__Origins__0` and `TZ`; `AllowedHosts` is auto-filled from `RAILWAY_PUBLIC_DOMAIN`), or any
    host equivalent; verify `/health` before declaring active.
+
+# Increment 7 — Final GitHub publishing (2026-11-12)
+
+## 1. Publishing performed (with explicit approval)
+
+- Created the public repository **https://github.com/Chaithanya-07/Lifegrid** (owner
+  `Chaithanya-07`) with the approved name `Lifegrid` and pushed with the existing history intact —
+  the repository was not recreated and no commit was discarded or rewritten.
+- Verified directly after the push: remote `origin` points to the repository; default branch
+  `main`; visibility public; the web file listing contains no databases, user data, backups,
+  attachments, Data Protection keys, environment files with values, build artifacts or Playwright
+  artifacts.
+- Heads pushed: `8e59ebf` (publish), then `09f7d0c` (CI fix, below) and `e370028` (README
+  project-structure section). Documentation commits follow this section.
+
+## 2. CI runs — genuine failure investigated and fixed
+
+- First Actions run **43215563868** (`8e59ebf`, ubuntu runners): frontend ✅, backend ✅ (366
+  tests), **e2e ❌** — 29 failed / 4 passed / 2 flaky (not accepted as green). Failure evidence
+  from the uploaded Playwright traces: `POST /api/auth/register` (and every other database-backed
+  endpoint) intermittently returned 500 to the instance on Linux; `/api/auth/me` 401s (no database
+  access) always succeeded. The server-side exception was not capturable — the runner logs do not
+  include the e2e API process console — and the failure never reproduced on Windows.
+- Decision per the Windows-only deployment requirement: CI now runs all three jobs on
+  **windows-latest** runners matching the deployment platform (`09f7d0c`; the Linux-only
+  `playwright install --with-deps` step became `playwright install chromium`).
+- Second run **43220864806**: all three jobs ✅, verified from the log — unit **335/335**, backend
+  **366/366** (failed 0), e2e **39 passed (1.4m)** with zero ✘/flaky attempts. No CI-passing claim
+  rests on anything but these runs; the badge was added afterwards.
+
+## 3. Docs updated to the published state
+
+- `docs/GITHUB_PUBLISHING.md` rewritten as a publish record + checklist (incl. the CI run table
+  and the open Linux-runner issue).
+- `README.md`: status badge; CI bullet now states Windows runners; project-structure section added.
+- `docs/RAILWAY_DEPLOYMENT.md`, `docs/DEPLOYMENT_PROGRESS.md`: stale "no remote / no repository"
+  claims replaced with the published state; deployment itself remains un-attempted.
+- `docs/IMPLEMENTATION_PROGRESS.md` and `ROADMAP.md` phase 7: publishing recorded, Linux issue and
+  remaining open items listed.
+
+## 4. Fresh QA on the pushed head (actually executed 2026-11-12)
+
+- Frontend unit: **335/335**. Lint: pass (the two pre-existing warnings). Production build: pass.
+- Backend: **366/366**. Playwright e2e: **39/39** (incl. the seven drawer/keyboard tests).
+- Real database safety: main database file MD5 unchanged by all verification work; e2e and unit
+  suites used throwaway instances only.
+
+## 5. Remaining blockers / open items
+
+- The intermittent Linux-runner e2e 500 is unresolved by design decision (Windows-only target); it
+  is recorded before any Linux/container deployment is attempted.
+- Railway (or any external hosting) deployment has not been performed; live `/health` remains
+  unverified.
+- Manual NVDA/VoiceOver pass not performed (automated axe + keyboard suites pass).
+- Release archive `lifegrid-source-*.zip` should be regenerated from the final post-documentation
+  head before being distributed.

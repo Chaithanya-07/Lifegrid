@@ -1,9 +1,9 @@
 # Lifegrid deployment status
 
-Deployment is not verified. The local Git repository is initialized on `main` with its commit history recorded in
-[CHANGES](../CHANGES.md); no remote is configured, no public repository exists, and no GitHub Actions workflow has run, so the
-remote, repository, Actions state, hosting provider, and public URL cannot be checked here. No production migration or
-deployment was performed during the current implementation work.
+Deployment is not verified. The repository is published at https://github.com/Chaithanya-07/Lifegrid (branch `main`, commit
+history in [CHANGES](../CHANGES.md)) and GitHub Actions runs green on Windows runners (see
+[GITHUB_PUBLISHING](GITHUB_PUBLISHING.md)); no hosting provider is connected and no public URL exists, so hosting and live
+endpoints cannot be checked here. No production migration or deployment was performed during the current implementation work.
 
 ## Local implementation readiness
 
@@ -14,7 +14,8 @@ deployment was performed during the current implementation work.
 
 ## Remaining verification before deployment
 
-- Confirm repository owner, name, visibility, default branch, and remote; do not infer them from earlier documentation.
+- Confirm the hosting service, service settings, persistent storage and public URL when a deployment is attempted; do not infer
+  them from earlier documentation.
 - Verify that databases, backups, attachments, logs, Data Protection keys, environment files, and build artifacts are excluded from
   publishing.
 - Configure persistent database, attachment, backup, and Data Protection storage; verify the cookie/session identifier remains

@@ -170,6 +170,25 @@ a Done task, in-memory gamification/focus aggregation, and Escape not reaching t
 - Correction: the release archive contains the 10 tracked README screenshots (the previous note
   "no screenshots exist" was wrong) — verified in the archive's entry list.
 
+## Delivered in the publishing pass
+
+- **Repository published:** https://github.com/Chaithanya-07/Lifegrid — owner `Chaithanya-07`,
+  public, created with the existing history intact (no recreation), pushed, and verified directly
+  (remote URL, default branch `main`, visibility, tracked-file list). The README carries the CI
+  status badge, added only after a real green run.
+- **CI runs and results:** the first Actions run (ubuntu runners) failed only in the e2e job —
+  every database-backed request intermittently returned 500 to the Playwright instance on Linux,
+  while the same suite passes consistently on Windows and the Linux backend job passed. Per the
+  Windows-only deployment decision, the workflow now runs all three jobs on Windows runners; run
+  43220864806 completed green with 335 unit, 366 backend and 39 e2e tests and zero flaky or failed
+  attempts. The Linux e2e failure is recorded as an open issue in
+  [GITHUB_PUBLISHING](GITHUB_PUBLISHING.md); its server-side exception was not captured (the runner
+  logs do not include the e2e API process console).
+- **Fresh local QA on the pushed head** (2026-11-12): frontend unit suite 335/335, backend suite
+  366/366 (including data-path portability and concurrency tests), Playwright e2e suite 39/39,
+  lint clean with the two existing warnings, production build successful.
+- Deployment docs updated to the published state; deployment itself has not been attempted.
+
 ## Still in progress
 
 - Screen-reader testing with NVDA/VoiceOver (the automated axe audit covers the rule-based WCAG layer and the keyboard behaviours
