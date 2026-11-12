@@ -68,7 +68,8 @@ browser context with a fresh account sees no backups from the first account (iso
 `keyboard.spec.ts` — the automated keyboard/review layer of the manual accessibility review: skip
 link position + activation, Enter/Space on nav links and the bell, dialog Tab focus-trapping and
 focus restoration on Escape, Escape reaching only the topmost overlay, form-validation `role="alert"`
-announcements, and the mobile drawer opened by the labelled menu button and closed by Escape.
+announcements, and the mobile drawer opened by the labelled menu button, closed by Escape, with
+focus trapped inside it while open and restored to the menu button on close.
 
 `concurrency` — the unique-index race regressions (`api/TaskFlow.Tests/ConcurrencyTests.cs` in the
 backend suite) interleave the real notification-sync and weekly-goal stage/commit paths around a

@@ -65,20 +65,22 @@ in code and verified by a permanent Playwright suite (`web/e2e/keyboard.spec.ts`
 | Screen-reader labels | Verified — dialogs are `role="dialog"` with accessible names, state-bearing buttons expose `aria-expanded`/`aria-pressed`/`aria-invalid`, and decorative glyphs are `aria-hidden` |
 | Form error announcements | Verified — validation failures render `role="alert"` messages ("Title is required.", sign-in failure text) and flag the field with `aria-invalid` |
 | Notification panel accessibility | Verified — the bell is an `aria-expanded` `aria-haspopup="dialog"` button with an unread count in its accessible name; the panel is a labelled dialog with a tablist |
-| Mobile navigation accessibility | Verified at 390 px — the hamburger is an `aria-expanded`, labelled button, Escape closes the drawer, focus moves back to the toolbar, and a skip link exists |
+| Mobile navigation accessibility | Verified at 390 px — the hamburger is an `aria-expanded`, labelled button; opening the drawer moves focus to it, Tab cycles inside it while it is open (dialogs opened above are served first), Escape closes it, and focus returns to the menu button |
 
 `aria-live` surfaces: toasts are `role="status"` (`aria-live="polite"`), loading and empty
 states use `role="status"`, and banners use `role="alert"`.
 
 ### Unresolved limitations (documented, accepted)
 
-- The mobile navigation drawer does not trap focus while open: keyboard users can Tab into the
-  background content beneath the scrim (they still reach and close the drawer with Escape only
-  from inside the page; focus does not jump back automatically when the drawer closes).
 - Live-region announcements of dynamic list changes (e.g. a card moving on the Kanban board under
   drag) are not announced; the accessible Move buttons provide the equivalent non-visual path.
 - Screen-reader passes with real assistive technology (NVDA/VoiceOver) have not been executed;
   everything above is verified through Playwright against Chromium's accessibility tree.
+
+Fixed in the release-readiness pass: the mobile navigation drawer now takes focus when it opens,
+traps Tab while open (a dialog opened above — task editor, command palette — is served first, so
+Escape still closes only the topmost surface) and returns focus to the menu button when it closes;
+covered by two tests in `web/e2e/keyboard.spec.ts`.
 
 
 These are *not* violations in the enforced rule sets and were left unchanged:

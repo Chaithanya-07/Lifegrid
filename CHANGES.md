@@ -1,6 +1,6 @@
 # Lifegrid — Forward-progress change report
 
-Covers four work increments. Database / migrations: none touched — no schema, data, or storage change in any increment.
+Covers five work increments. Database / migrations: none touched — no schema, data, or storage change in any increment.
 **Record-count audit result (all increments): no artificial record-count restrictions exist, and none were introduced.**
 
 ---
@@ -350,3 +350,174 @@ No new features — correctness/hardening increment: consistent session-expiry b
 ## 7. Recommended next step
 
 A minimal **Playwright e2e suite** (login → create task → complete → XP awarded → backup) to close the fakeServer-drift risk, followed by tightening the forwarded-header trust (`ForwardLimit = 1`) with a rate-limit test. Smallest quick wins if you prefer fixes first: items 3 and 6 above.
+
+---
+
+# Increment 5 — Final release review and deployment readiness (2026-11-12)
+
+## 1. Changes made
+
+- **Development database portability (Part 1).** `appsettings.Development.json` shipped a
+  machine-specific absolute path (`D:/Projects/Lifegrid/data/taskflow.db`; also absolute backup and
+  attachment directories). It now ships portable relative paths — `Data Source=taskflow.db`,
+  `Backups/Attachments = backups|attachments` — and `Program.cs` anchors them at the API content root
+  (the project directory under `dotnet run`), so the repository's existing `data/` directory is used
+  regardless of the terminal's working directory. The whole data directory can be relocated with
+  `LIFEGRID_DATA_DIRECTORY` (also reachable as the standard config mapping `LifeGrid__DataDirectory`;
+  the friendly env name is wired explicitly in code). Absolute paths in configuration are never
+  touched, so the test factories, the e2e throwaway-instance overrides and all production
+  configuration behave exactly as before. Resolved locations are logged at startup (Information,
+  development only): "LifeGrid development data — database: …, backups: …, attachments: …".
+- **Mobile drawer focus trap (Part 6).** Previously a documented accessibility limitation. The drawer
+  now takes focus when opened (`side.focus({ preventScroll: true })`), Tab cycles inside it while it
+  is open and Shift+Tab wraps at the edges, Escape closes it, and closing returns focus to the menu
+  button that opened it. A dialog opened above (task editor, command palette, confirmations) receives
+  the keys first (`modal-open` body-class gate), so Escape still closes only the topmost surface.
+  The shared FOCUSABLE selector was extracted from `Modal.tsx`; navigation behaviour and existing
+  tests are otherwise untouched.
+- **Release package hygiene (Part 2).** A clean, source-only archive is produced from the commit
+  graph with `git archive` (239 entries). Verified contents in detail in §4 below.
+- **Git repository review (Part 3).** Summarised in §5: branch `main`, three commits, clean tree,
+  identity `Kurra Chaithanya`, no remote configured, nothing pushed (approval required).
+- **CI workflow review (Part 4).** Verified every step, path and working directory (§6); added a
+  NuGet package cache (`actions/cache` on the NuGet packages directory, keyed by the `api/**`
+  csproj hashes) to the backend and e2e jobs alongside the existing npm caches.
+- **Deployment configuration review (Part 5).** Verified the Docker / entrypoint / railway.json /
+  docs chain end to end (§7); hardened the entrypoint (AllowedHosts default from
+  `RAILWAY_PUBLIC_DOMAIN` when unset; non-root starts no longer fail on an unwritable root-owned
+  data mount).
+- **Docs.** README (data-location paragraph), docs/RAILWAY_DEPLOYMENT.md (entrypoint description +
+  AllowedHosts row), docs/ACCESSIBILITY_AUDIT.md (drawer resolved), docs/E2E_TESTING.md (drawer
+  trap), ROADMAP.md, IMPLEMENTATION_PROGRESS.md, `.env.example` (documented
+  `LIFEGRID_DATA_DIRECTORY` as development-only), `.gitignore` (generated zips excluded).
+
+## 2. Database portability findings
+
+- `appsettings.json` (the production base) already used relative paths (`data/taskflow.db`);
+  the machine-specific absolute path existed only in the Development override, presumably because
+  relative paths resolve against the process CWD and `dotnet run` from the repository root would
+  otherwise have addressed a *different* database inside `api/TaskFlow.Api/`. The fix keeps the
+  portable paths and removes that ambiguity by anchoring them explicitly at the content root.
+- Data-directory inventory: `data/taskflow.db` (+ `-wal`/`-shm`) is the active database;
+  `data/backups/startup-20261111-150140/` holds an older, cold point-in-time snapshot of the same
+  database (November 11, 15:01); `data/logs/` and `data/run/pids.json` are residue of ad-hoc dev
+  runs. No other database files exist in the tree. Nothing was deleted, merged or overwritten.
+- No production connection configuration was modified.
+
+## 3. Database preservation verification
+
+- Before any testing: main-DB MD5 `924efbe694d79a9f53620ab84713a7a1`, WAL MD5
+  `7e9d15a1eb242320f0753171ac93fce5`; read-only diagnostics (SQLite opened with `mode=ro` plus
+  `PRAGMA query_only`): 2 users, 2 tasks, `PRAGMA quick_check` = "ok", 6 applied migrations,
+  274 432 bytes.
+- A safety copy of all three database files was taken to a temporary directory outside the
+  repository before the first boot.
+- Default-resolution boot (through the new portable config): the startup log resolved the
+  *existing* `data\taskflow.db` exactly; `/health` returned `{"status":"ok"}`; EF reported
+  "No migrations were applied. The database is already up to date."
+- Override boot (`LIFEGRID_DATA_DIRECTORY` → temporary directory): the log resolved the temporary
+  directory and health was OK; that throwaway database was deleted afterwards and is not "the"
+  database — the default resolution keeps pointing at the existing data.
+- After the runs: main-DB MD5 unchanged (`924efbe6…`); all row counts, the user-email and
+  task-title content hashes, file size, applied-migration count and the integrity check are
+  identical to the pre-test snapshot. Only the WAL file's MD5 changed — the expected effect of
+  SQLite's open/close write-ahead lifecycle during the boot; no rows were written (counts and
+  hashes prove it).
+
+## 4. Release package contents and exclusions
+
+`lifegrid-source-20261112.zip`, 2 579 934 bytes, produced by `git archive` of HEAD (239 entries):
+
+- **Preserved:** all source code and tests, the 13 EF Core migration files, `web/package-lock.json`,
+  all documentation, LICENSE, `.env.example`, `.gitignore`/`.gitattributes`, README, the GitHub
+  Actions workflow, Dockerfile, docker-entrypoint.sh, railway.json, .dockerignore. No screenshots
+  intended for the README exist in the repository, so none are claimed packaged.
+- **Excluded (verified from the entry list):** no `node_modules/`, `bin/`, `obj/`, `dist/`,
+  `coverage/`, no runtime `data/` directory (databases, WAL/SHM, the startup-2026… snapshot copy,
+  backups, attachments, logs, `run/pids.json`), no `*.db`/`*.sqlite`, no Playwright
+  `test-results`/`playwright-report`, no `.playwright-mcp/`, no populated `.env` (only
+  `.env.example`), no Data Protection keys. The only string-pattern hits in the scan are the C#
+  source folder `api/TaskFlow.Api/Data/…` (capital D, source code) and the intended `.env.example`.
+- The zip itself is gitignored (`/lifegrid-source-*.zip`) and lives in the repository root.
+- No local user data was deleted to build it.
+
+## 5. Git status and commit details
+
+- Branch `main`; commits `2a67cd3` → `5626e0e` (increment 4) → `9c0da89` (increment 5 code); the
+  doc/report updates land as a fourth commit. Working tree clean after committing.
+- Identity: `Kurra Chaithanya <chaithanya7869@gmail.com>`. No remote configured; nothing pushed
+  (per the standing approval requirement).
+- Tracked-file scan: 216 files; the only `.env*` match is the intended `.env.example`; no database,
+  data-directory, log, pid, key or build-artifact files are tracked (verified by the archive scan
+  above). LICENSE and `.env.example` are included; all source and test files are committed.
+
+## 6. CI workflow review
+
+- Three jobs verified line by line: **web** (Node 22, npm cache keyed on `web/package-lock.json`,
+  `npm ci`, lint, unit tests — `vitest run`, so no watch-mode hang — production build, dist
+  artifact), **api** (.NET 10.0.x, build, `dotnet test --no-build` with TRX uploads on `always()`),
+  **e2e** (both toolchains, `npx playwright install --with-deps chromium`, one up-front API build,
+  `npx playwright test` against the throwaway 5292/5293 instance, report and test-results uploaded
+  on `always()`).
+- Triggers: every push and pull request against `main`; concurrency cancels superseded runs.
+- Working directories and paths checked (`working-directory: web` where required; correct csproj
+  paths; artifact paths exist). The workflow never references the repository's `data/` directory;
+  the e2e databases are recreated under `web/test-results/` on every run.
+- Change made: added the NuGet package cache to the backend and e2e jobs.
+- **Not claimed as passing:** CI has not executed on GitHub (no remote yet); the workflow's
+  commands are currently verified by the local clean-clone runs, which exercise the same steps.
+
+## 7. Deployment configuration findings
+
+- **Persistent storage:** the Dockerfile defaults every writable location to `/data` and declares
+  `VOLUME ["/data"]`; `railway.json` expects a single volume; the entrypoint creates and chowns the
+  three persistent sub-folders, drops privileges (`setpriv` to `app`), and binds `0.0.0.0:$PORT`.
+- **Data Protection keys:** persisted at `/data/keys` in the image with `chmod 700`; an unset keys
+  directory is a hard startup failure outside development — correct.
+- **Cookies/HTTPS:** `CookieSecurePolicy.Always` outside development; the container binds plain
+  HTTP and TLS terminates at the platform proxy (documented; forwarded-header trust remains
+  loopback/private-only networks, unchanged since the security pass).
+- **Health:** `/health` (and `/api/health`) answer only when the database connects;
+  `railway.json` probes `/health` with a 120 s timeout, one replica, restart-on-failure —
+  appropriate for a single-writer SQLite volume.
+- **Startup:** migrations are applied automatically at startup, are additive, and the entrypoint
+  fixes ownership before the app runs; the "database already up to date" path was exercised
+  against the real data in §3.
+- **Fixed:** `AllowedHosts` — the bundled base default is localhost-only, so the documented manual
+  step was easy to miss on a first deploy; the entrypoint now fills it from the Railway-provided
+  `RAILWAY_PUBLIC_DOMAIN` when unset (an explicit setting still wins). Non-root container starts
+  no longer fail if the data folders cannot be created.
+- **Still manual (documented, unchanged):** `Cors__Origins__0` must be set to the real web origin
+  (it also drives the CSRF Origin check) and requires knowing the domain before the deploy.
+
+## 8. Accessibility fixes and limitations
+
+- Fixed: the mobile navigation drawer focus issue (see §1). Now covered by 2 e2e tests
+  (open/close/focus-restore and Tab-trap cycling).
+- The audit limit list was re-checked: the drawer item is resolved; the remaining **documented**
+  limitations are unchanged — live-region announcements for drag-driven list changes, and no
+  real-assistive-technology passes. **No NVDA/VoiceOver testing was performed and none is
+  claimed**; all verification is Playwright against Chromium's accessibility tree.
+
+## 9. Test results (actually executed)
+
+| Check | Result |
+|---|---|
+| Frontend unit (`npm test`) | **335/335 passed** |
+| Frontend lint (`npm run lint`) | Pass, 2 pre-existing warnings |
+| Frontend production build | Successful |
+| Backend (`dotnet test`) | **366/366 passed** (357 + 9 new data-path portability tests) |
+| Playwright e2e (`npm run test:e2e`) | **39/39 passed** (32 prior + 6 keyboard + 1 new drawer-trap test) |
+| Development API boot | Default resolution + override resolution boots verified; see §3 for the database checks |
+| Clean-clone battery (fresh `git clone`) | Re-ran installs, lint, unit, build, backend tests and e2e; figures in the final increment-5 report message |
+
+## 10. Remaining blockers before public release
+
+- **GitHub publishing still requires explicit approval** (repository creation and the first push);
+  no remote is configured and nothing has been pushed.
+- **CI status is unknown on GitHub** — the workflow is defined and mirrored locally by clean-clone
+  runs, but no real Actions run has executed yet (no badge is shown until then).
+- **Deployment is not verified in a live environment** — Railway/Vercel settings remain documented
+  templates; `Cors__Origins__0` and the frontend hosting need their real values at deploy time.
+- **Accessibility:** no assistive-technology (NVDA/VoiceOver) pass; drag-change announcements open.
+- Screenshots for the README do not exist yet (the README deliberately claims nothing about them).

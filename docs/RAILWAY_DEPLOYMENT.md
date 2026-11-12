@@ -10,7 +10,7 @@ persistent storage mounted at `/data`.
 | File | Purpose |
 |------|---------|
 | `Dockerfile` | Multi-stage build (`dotnet/sdk:10.0` → `dotnet/aspnet:10.0`), installs `tzdata`, runs as an unprivileged user |
-| `docker-entrypoint.sh` | Creates `/data/{backups,attachments,keys}`, fixes volume ownership, binds to Railway's `$PORT`, drops privileges |
+| `docker-entrypoint.sh` | Creates `/data/{backups,attachments,keys}`, fixes volume ownership, binds to Railway's `$PORT`, defaults `AllowedHosts` to Railway's `RAILWAY_PUBLIC_DOMAIN` when unset, drops privileges |
 | `railway.json` | Dockerfile builder, health check `/health`, `numReplicas: 1`, restart on failure |
 | `.dockerignore` | Keeps the web app, docs, databases and secrets out of the build context |
 
@@ -40,7 +40,7 @@ Set these in the Railway service. None of them is a secret except where noted; t
 | `Attachments__Directory` | `/data/attachments` | Set in the image |
 | `DataProtection__KeysDirectory` | `/data/keys` | Set in the image; **required** so sessions survive restarts |
 | `Cors__Origins__0` | `https://<your-vercel-domain>` | **Required.** Exact origin, no trailing slash. Also drives the CSRF origin check |
-| `AllowedHosts` | `<service>.up.railway.app;healthcheck.railway.app` | **Required.** Host names the API answers to. The bundled default only allows `localhost`, so until this is set every request — including the health check — fails with "Invalid Hostname" |
+| `AllowedHosts` | `<service>.up.railway.app;healthcheck.railway.app` | **Required.** Host names the API answers to. The bundled default only allows `localhost`, so until this is set every request — including the health check — fails with "Invalid Hostname". On Railway the entrypoint fills this from `RAILWAY_PUBLIC_DOMAIN` automatically when left unset; setting the variable explicitly always wins |
 | `TZ` | e.g. `Asia/Kolkata` | Time zone for "today", overdue and analytics (default `UTC`) |
 | `Auth__MaxUsers` | `500` (default) | Lower it to cap storage |
 | `Auth__AllowRegistration` | `true` (default) | `false` closes sign-ups |

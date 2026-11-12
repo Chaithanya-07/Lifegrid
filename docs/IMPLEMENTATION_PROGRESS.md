@@ -121,6 +121,41 @@ a Done task, in-memory gamification/focus aggregation, and Escape not reaching t
   triggered on pushes to `main` and pull requests. Runs in GitHub Actions, not yet executed there.
 - **Clean-clone verification** performed from a fresh `git clone` (see the final increment report).
 
+## Delivered in the final release-review pass
+
+- **Portable development data configuration**: `appsettings.Development.json` no longer hard-codes a
+  machine-specific absolute path. It ships relative paths, resolved at startup against the API's
+  content root (`api/TaskFlow.Api` under `dotnet run`), so the repository's existing `data/` directory
+  is used regardless of the terminal's working directory. The whole development data directory can be
+  relocated with `LIFEGRID_DATA_DIRECTORY` (or `LifeGrid__DataDirectory`); absolute paths in
+  configuration are always respected, so the test factories and deployment configuration are
+  unaffected (`api/TaskFlow.Api/Data/DevDataPaths.cs`, pinned by `DevDataPathsTests.cs`).
+- **Startup data-path diagnostic**: the development log states the resolved database, backup and
+  attachment locations (`info: TaskFlow.Api[0] LifeGrid development data — database: …`). Verified by
+  booting the real development data: the log resolves `data\taskflow.db`, migrations report "already
+  up to date", the main database file checksum is unchanged after the run, and read-only row counts,
+  integrity check and user/hashes are identical before and after (2 users, 2 tasks). The override was
+  verified against a temporary directory, then removed.
+- **Mobile drawer focus trap** (previously a documented limitation): the drawer now receives focus
+  when opened, Tab cycles inside it while open, Escape closes it, and focus returns to the menu
+  button. Dialogs opened above (task editor, command palette) are served first, so Escape still only
+  reaches the topmost surface. Two e2e tests cover it.
+- **Release package**: a source-only archive is produced from the git commit graph
+  (`git archive`), verified to contain 239 entries with no databases, user data, build outputs,
+  `node_modules`, logs, run-state files, Playwright artifacts, environment files with values, or
+  Data Protection keys, and with LICENSE, `.env.example`, the CI workflow, the Docker/Railway files,
+  the package lock files and all 13 EF Core migrations present.
+- **Deployment hardening**: `docker-entrypoint.sh` now defaults `AllowedHosts` from Railway's
+  `RAILWAY_PUBLIC_DOMAIN` when unset (the bundled localhost-only default otherwise fails every
+  request on a first deploy; an explicit value always wins) and non-root container starts no longer
+  fail if the data folders cannot be created. Review found the persistent-volume layout (`/data`),
+  the Data Protection key persistence, health-check path and forwarded-header trust posture already
+  correct and documented.
+- **CI review**: the workflow (frontend, backend, e2e jobs; npm and NuGet caching; browser install;
+  result/failure artifact uploads; push and PR triggers) was re-verified step by step and a NuGet
+  package cache was added to the backend and e2e jobs. It has **not** been executed on GitHub yet —
+  no CI-passing claim is made until a real Actions run completes.
+
 ## Still in progress
 
 - Screen-reader testing with NVDA/VoiceOver (the automated axe audit covers the rule-based WCAG layer and the keyboard behaviours
@@ -143,10 +178,11 @@ cd ..\api
 dotnet test TaskFlow.Tests\TaskFlow.Tests.csproj
 ```
 
-Latest verification: backend **357/357** tests passed (the forwarded-header, stats-volume and unique-race concurrency tests
-included); the frontend unit suite passed **335/335** with no unhandled errors; the **Playwright e2e suite passed 38/38**
-(19 journey tests, the 13-state axe accessibility audit, and 6 keyboard/screen-reader tests), re-verified from a fresh
-`git clone` alongside installs, build and every other check. The production build succeeds and lint exits successfully with two existing
+Latest verification: backend **366/366** tests passed (the forwarded-header, stats-volume, unique-race concurrency and
+data-path portability tests included); the frontend unit suite passed **335/335** with no unhandled errors; the
+**Playwright e2e suite passed 39/39** (19 journey tests, the 13-state axe accessibility audit, and 7
+keyboard/screen-reader tests, the newest covering the mobile-drawer focus trap), re-verified from a fresh `git clone`
+alongside installs, build and every other check. The production build succeeds and lint exits successfully with two existing
 `unicorn(no-useless-fallback-in-spread)` warnings.
 
 The backend integration tests use temporary SQLite databases. Build/test outputs and test data must not be pointed at a production
