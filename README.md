@@ -6,7 +6,7 @@
 
 Lifegrid is a personal productivity application: tasks, calendar, Kanban, a focus timer, and
 server-authoritative rewards in one calm, keyboard-friendly workspace. It runs locally or on your
-own server — your tasks live in a single SQLite file that you own, not in somebody's cloud. It
+own server - your tasks live in a single SQLite file that you own, not in somebody's cloud. It
 evolves the existing TaskFlow codebase rather than replacing it, keeping its React/TypeScript
 frontend, ASP.NET Core API, and established task workflows.
 
