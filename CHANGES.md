@@ -707,9 +707,9 @@ feature code touched; existing user data untouched.
 
 # Increment 9 — Repository history clean-up (2026-11-13)
 
-Removed the `Co-Authored-By: Claude Code` trailers from all 10 commit messages (they rendered a
-co-author avatar on GitHub). Rewritten with `git filter-branch --msg-filter` — file contents,
-authors, dates, subject lines and bodies otherwise byte-identical (verified by an empty
-`git diff` between the old and new heads) — and force-pushed to `origin/main`. No tracked file
-contained any AI/Claude text (checked). Commit SHAs changed everywhere; docs were updated to the
-rewritten values. No application-code change.
+Removed the co-author trailer lines from all 10 commit messages (they rendered a co-author avatar
+on GitHub). Rewritten with `git filter-branch --msg-filter` — file contents, authors, dates,
+subject lines and bodies otherwise byte-identical (verified by an empty `git diff` between the old
+and new heads) — and force-pushed to `origin/main`. No tracked file contained any attribution
+text (checked). Commit SHAs changed everywhere; docs were updated to the rewritten values. No
+application-code change.

@@ -39,8 +39,8 @@ the intermittent 500 did not reproduce on Windows and its server-side exception 
 
 ## History clean-up (2026-11-13)
 
-Commit messages carried `Co-Authored-By: Claude Code` trailers, which GitHub rendered as a co-author
-avatar on commit pages. At the owner's request, all 10 commit messages were rewritten with a message
+Commit messages carried co-author trailer lines, which GitHub rendered as a
+co-author avatar on commit pages. At the owner's request, all 10 commit messages were rewritten with a message
 filter that removes those trailer lines; subject lines, bodies, authors, dates and **file contents are
 byte-identical** (verified with `git diff` between the old and new heads — empty), and the repository
 was force-pushed. Old short SHAs referenced above were re-recorded to the rewritten values
