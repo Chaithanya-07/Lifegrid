@@ -2,123 +2,148 @@
 
 [![CI](https://github.com/Chaithanya-07/Lifegrid/actions/workflows/ci.yml/badge.svg)](https://github.com/Chaithanya-07/Lifegrid/actions/workflows/ci.yml)
 
-Lifegrid is a personal productivity application for organizing tasks, planning time, and building consistent habits. It evolves the existing TaskFlow application rather than replacing it, retaining its React/TypeScript frontend, ASP.NET Core API, SQLite database, authentication, and established task workflows.
+**Plan your day. Manage your tasks. Build better habits.**
 
-## Features
+Lifegrid is a personal productivity application: tasks, calendar, Kanban, a focus timer, and
+server-authoritative rewards in one calm, keyboard-friendly workspace. It runs locally or on your
+own server — your tasks live in a single SQLite file that you own, not in somebody's cloud. It
+evolves the existing TaskFlow codebase rather than replacing it, keeping its React/TypeScript
+frontend, ASP.NET Core API, and established task workflows.
 
-- Task lists for My Tasks, Inbox, Today, Upcoming, and Completed
-- Task priorities, categories, tags, subtasks, reminders, recurring tasks, attachments, and activity history
-- Calendar and Kanban views with persisted task status and ordering
-- Dashboard, productivity analytics, and task-linked focus sessions
-- Account authentication and per-user data isolation
-- JSON and CSV export, validated import, automatic backups, and transactional restore
-- White-only interface with a local-device-time accent theme
-- Server-authoritative XP, levels, daily streaks, achievement badges, weekly goals, and reward history
-- Dedicated Achievements screen and a Help Center that documents the reward rules
-- Playwright end-to-end tests against an isolated throwaway instance (`npm run test:e2e`), including an automated axe-core WCAG 2.1 A/AA audit of the main pages and dialogs
-- Forwarded-header trust tied to private/loopback proxy networks so rate limiting identifies real clients behind Railway/Vercel
+## Key features
+
+- **Task management** — My Tasks, Inbox, Today, Upcoming and Completed lists with priorities,
+  categories, tags, subtasks, pinned items, filters and instant search.
+- **Calendar and Kanban** — a month/week calendar and a drag-and-drop board whose moves save
+  immediately.
+- **Reminders and recurring tasks** — reminder alerts while the app is open, an overdue digest, and
+  calendar-aware recurrence series that never skip or duplicate occurrences.
+- **Focus timer and analytics** — task-linked focus sessions, completion trends, weekly and monthly
+  productivity charts.
+- **Rewards** — XP for completing tasks, levels, daily streaks, achievement badges, and an editable
+  weekly goal, all awarded transactionally and recorded in an auditable ledger.
+- **Time-based accent theme** — accented colours follow your device's clock over white surfaces and
+  update live; contrast is tested against WCAG AA at every hour of the schedule.
+- **Backup, import and export** — JSON and CSV export, validated import, automatic backups, and a
+  transactional restore with a safety snapshot first.
+- **Accessibility** — a clean axe-core WCAG 2.1 A/AA audit of 13 page and dialog states and a
+  regression-tested keyboard story: focus traps, focus restoration, and Escape closing the topmost
+  overlay only.
+- **Responsive interface** — one codebase from a 390-pixel phone (drawer navigation) to a wide
+  desktop (collapsible sidebar).
 
 ## Screenshots
 
-Captured from the running application against a throwaway demo database, at the real local time (evening, neutral accent) unless noted.
+Captured from the running application with demo data only.
 
-| Dashboard | Task editor |
-|---|---|
-| ![Dashboard](docs/screenshots/dashboard-desktop.png) | ![Task editor](docs/screenshots/task-editor.png) |
+**Dashboard**
 
-| My Tasks | Kanban |
-|---|---|
-| ![My Tasks](docs/screenshots/my-tasks.png) | ![Kanban](docs/screenshots/kanban.png) |
+<p align="center">
+  <img src="docs/screenshots/dashboard-desktop.png" alt="Dashboard with greeting, today, overdue, upcoming, rewards and activity widgets" width="68%">
+</p>
 
-| Analytics | Settings |
-|---|---|
-| ![Analytics](docs/screenshots/analytics.png) | ![Settings](docs/screenshots/settings.png) |
+**Task lists, board and editor**
 
-Time-based accents, produced with the development-only time simulator:
+<p align="center">
+  <img src="docs/screenshots/my-tasks.png" alt="My Tasks list with priorities, tags, search and filters" width="49%">
+  <img src="docs/screenshots/kanban.png" alt="Kanban board with To Do, In Progress and Done columns" width="49%">
+</p>
 
-| 2:30 PM, "Calm focus" | 5:55 PM, "Critical hour" with a deadline alert |
-|---|---|
-| ![Calm focus](docs/screenshots/dashboard-calm-focus.png) | ![Critical hour](docs/screenshots/dashboard-critical-hour.png) |
+<p align="center">
+  <img src="docs/screenshots/task-editor.png" alt="Task editor dialog with priority, category, due date, tags, reminders and repeat sections" width="49%">
+  <img src="docs/screenshots/settings.png" alt="Settings page with date, time, week and dashboard preferences" width="49%">
+</p>
 
-Mobile dashboard (390 px wide): ![Mobile dashboard](docs/screenshots/dashboard-mobile.png)
+**Analytics and notifications**
 
-## Interface
+<p align="center">
+  <img src="docs/screenshots/analytics.png" alt="Productivity analytics with completion trends, weekly and monthly charts, and priority breakdowns" width="46%">
+</p>
 
-- **Navigation:** a floating, rounded sidebar grouped as Main menu, Tasks, Plan, Organize and Insights (Dashboard; My Tasks, Inbox, Today, Upcoming, Completed; Calendar, Kanban; Categories, Tags; Analytics, Focus, Achievements). Settings, Help Center, Profile and Sign out sit at the bottom. It collapses to icons on desktop and becomes a drawer on small screens.
-- **Dashboard:** a hero with greeting, date, live time, the current time-period label and message, and a real-deadline alert; then Today, Overdue, Upcoming, High priority, Completion progress, Lifegrid rewards, Focus, Productivity, Recent activity and Shortcuts. Every widget is an independent child of one responsive grid, and each empty state offers a next step.
-- **Task editor:** title, description, priority, category, due date and due time are always visible. Notes, start date, tags, reminders, repeat, time estimates, status/pin/favorite, subtasks, files and history are collapsible sections with a summary of what is set. Subtasks and files need a saved task and say so on new tasks.
-- **Design system:** shared tokens in `web/src/index.css` (surfaces, text, borders, radii, shadows, control height, semantic colours). Only the `--accent*` tokens change with the clock; danger, warning and success colours are fixed so they stay distinct.
-- **Accessibility:** accent ink is capped to a luminance that gives at least 4.5:1 against white and against its own pastel tint at every minute of the schedule (asserted in tests); animation respects `prefers-reduced-motion`. Keyboard support is regression-tested in `web/e2e/keyboard.spec.ts`: the skip link, dialog focus traps and focus restoration, Escape closing only the topmost overlay, form error announcements, and the mobile drawer (focus moves in, Tab stays inside while it is open, background content is inert until it closes, focus returns to the menu button). The axe-core audit of 13 page/dialog states is clean at WCAG 2.1 A/AA; a manual NVDA/VoiceOver pass has not been performed.
+<p align="center">
+  <img src="docs/screenshots/notifications.png" alt="Notification panel with the overdue digest and reminder alerts" width="64%">
+</p>
 
-## Time-based accents
+**Time-based interface**
 
-The page and card surfaces remain white and text remains dark. Accent colors follow the browser's local time and update without a page refresh:
+<p align="center">
+  <img src="docs/screenshots/dashboard-calm-focus.png" alt="Dashboard in the calm-focus afternoon accent at 2:30 PM" width="49%">
+  <img src="docs/screenshots/dashboard-critical-hour.png" alt="Dashboard in the critical-hour red accent at 5:55 PM with a deadline alert" width="49%">
+</p>
 
-| Local time | Accent |
-|---|---|
-| 9:00 AM–12:00 PM | Green to peach-yellow |
-| 12:00 PM–1:00 PM | Neutral |
-| 1:00 PM–2:00 PM | Happy yellow |
-| 2:00 PM–3:00 PM | Calm lavender-blue |
-| 3:00 PM–4:00 PM | Orange transition |
-| 4:00 PM–5:50 PM | Orange to warning red |
-| 5:50 PM–7:00 PM | Critical red, overriding the afternoon state |
-| 7:00 PM onward | Neutral |
+**Responsive design**
 
-A development-only simulator is available in Settings to exercise the schedule. It is not available in production.
-
-The dashboard and top bar also show a period label and message for the same boundaries (for example "Morning momentum", "Calm focus", "Deadline window", "Critical hour"). A deadline alert appears in the Deadline window and Critical hour only when tasks are actually due today or overdue.
-
-## Rewards
-
-The API awards task-completion XP once per task: Low = 5, Medium = 10, High = 15, and Urgent = 15. Completing every task due on the current local day grants one additional 20 XP daily bonus. Reward creation is transactional and protected by database uniqueness constraints. Levels advance every 100 XP; the default weekly goal is 10 completed tasks and can be set from 1 to 100. Achievements, streaks, and reward history are derived from persisted completion and reward records.
+<p align="center">
+  <img src="docs/screenshots/dashboard-mobile.png" alt="Mobile dashboard at 390 pixels wide" width="230">
+</p>
 
 ## Technology
 
-- **Frontend:** React 19, TypeScript, Vite, CSS, Vitest, Testing Library, and Oxlint
-- **Backend:** ASP.NET Core Web API on .NET 10, Entity Framework Core, and SQLite
-- **Authentication:** Existing signed and encrypted cookie sessions; cookies and Data Protection identifiers are intentionally preserved
-- **Routing/state:** Existing hash-based routes and React context providers
-- **License:** MIT ([LICENSE](LICENSE)); © Kurra Chaithanya
-- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs the frontend lint/unit/build, the backend restore/build/test, and the Playwright e2e suite (against the isolated throwaway instance) on Windows runners, matching the deployment platform, on pushes to `main` and on pull requests; reports and failure artifacts are uploaded. The status badge above tracks it.
+| Layer | Tools |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, CSS (no runtime UI library) |
+| Backend | ASP.NET Core Web API on .NET 10, Entity Framework Core, SQLite |
+| Testing | Vitest + Testing Library (unit), xUnit (API), Playwright (end to end) |
+| CI | GitHub Actions on Windows runners (lint, unit, API, e2e — see the badge above) |
 
-The `TaskFlow.*` project and namespace names, storage keys, database filename, backup naming, and `taskflow-export` JSON schema are retained where they are compatibility-sensitive. User-facing product branding is Lifegrid.
+The `TaskFlow.*` project and namespace names, storage keys, database filename, backup naming and
+`taskflow-export` schema are retained where compatibility matters (existing databases, exports and
+sessions stay readable); the product surface is Lifegrid. The full identifier list is in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#taskflow-compatibility-identifiers).
+
+## Architecture
+
+`Controllers → Services → Data access (EF Core) → SQLite`, with a React 19 single-page frontend
+that talks to `/api` under cookie-based sessions; every record is filtered by the authenticated user
+in the data layer.
+
+```
+Browser (React, Vite)  ──/api──▶  ASP.NET Core API (:5062)  ──EF Core──▶  SQLite (data/taskflow.db)
+  localStorage: settings, timer                     │
+                                                    ├─ attachments  data/attachments/
+                                                    └─ backups      data/backups/
+```
+
+Design decisions in brief: no repository layer over `IQueryable` (the `DbContext` is the unit of
+work), all business rules in services, errors as RFC 7807 `ProblemDetails`, serializable
+transactions for multi-step writes against SQLite's single-writer model, additive EF Core
+migrations applied at startup, database-side aggregations for analytics and rewards, and an
+auditable XP ledger protected by uniqueness constraints. The details live in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Project structure
 
 ```
 Lifegrid/
 ├─ api/
-│  ├─ TaskFlow.Api/        ASP.NET Core Web API — Controllers → Services → EF Core (SQLite, additive migrations)
-│  └─ TaskFlow.Tests/      xUnit suite: WebApplicationFactory against throwaway SQLite files (366 tests)
+│  ├─ TaskFlow.Api/        ASP.NET Core Web API — Controllers → Services → EF Core (SQLite)
+│  └─ TaskFlow.Tests/      xUnit suite: WebApplicationFactory against throwaway SQLite files
 ├─ web/
-│  ├─ src/                 React 19 + Vite: pages/, components/, focus/, hash routing, no runtime UI deps
-│  └─ e2e/                 Playwright suite driving the real app on the isolated ports 5292/5293 instance
-├─ docs/                   Architecture, accessibility audit, e2e guide, production security, deployment docs
-├─ docs/screenshots/       The images embedded above
+│  ├─ src/                 React 19 + Vite: pages/, components/, focus/, hash routing
+│  └─ e2e/                 Playwright suite driving the real app on isolated ports 5292/5293
+├─ docs/                   Architecture, accessibility audit, e2e guide, security, deployment docs
+├─ docs/screenshots/       The images above
 ├─ .github/workflows/ci.yml  Frontend / backend / e2e jobs per push and pull request
 ├─ Dockerfile              Production image (persistent /data volume)
 ├─ docker-entrypoint.sh    Ownership fix, $PORT binding, privilege drop
 └─ railway.json            Railway deploy template (health check /health, single replica)
 ```
 
-Names like `TaskFlow.*` (namespaces, cookie name, database filename, `taskflow-export` schema) are retained where compatibility matters; the product surface is Lifegrid.
+## Getting started
 
-## Run locally
-
-Prerequisites: .NET 10 SDK, Node.js, and npm.
+Prerequisites: .NET 10 SDK, Node.js 22 (or later), and npm.
 
 1. Start the API:
 
    ```powershell
-   cd api\TaskFlow.Api
+   cd api/TaskFlow.Api
    dotnet restore
    dotnet run --launch-profile http
    ```
 
-   The API listens at `http://localhost:5062`. Pending EF Core migrations are applied at startup.
+   The API listens at `http://localhost:5062` and applies pending EF Core migrations at startup.
 
-2. In another terminal, start the frontend:
+2. In a second terminal, start the frontend:
 
    ```powershell
    cd web
@@ -126,46 +151,58 @@ Prerequisites: .NET 10 SDK, Node.js, and npm.
    npm run dev
    ```
 
-   Open `http://localhost:5174`. The Vite development server proxies `/api` requests to the local API. Register an account to begin.
+   Open `http://localhost:5174` and register an account — everything stays on your machine.
 
-Data lives under the repository `data\` directory: `data\taskflow.db` (plus its `-wal`/`-shm` companions), `data\backups`, `data\attachments`, and `data\run`. The development configuration (`api/TaskFlow.Api/appsettings.Development.json`) uses portable relative paths anchored at the API's content root — the project directory under `dotnet run` — so the resolved location never depends on the terminal's working directory, and the resolved paths are logged at startup (`info: TaskFlow.Api[0] LifeGrid development data — database: …`). Set `LIFEGRID_DATA_DIRECTORY` (or `LifeGrid__DataDirectory`) to move the whole development data directory somewhere else; absolute paths in the configuration are always respected. The production connection in `appsettings.json` keeps its own relative paths, and production deployments must use persistent storage and configure a persistent Data Protection key directory; changing those locations can make existing data or sessions appear unavailable.
+## Environment configuration
 
-## Validation
+Local development needs no environment configuration: `appsettings.Development.json` uses relative
+paths anchored at the repository, so the database (`data/taskflow.db`), backups and attachments
+resolve inside the repository's `data/` directory regardless of the terminal's working directory,
+and the resolved locations are logged at API startup. Set `LIFEGRID_DATA_DIRECTORY` to relocate the
+whole development data directory; absolute paths in configuration are always respected.
 
-Run commands from the repository root unless noted:
+Deployment-style configuration (the API reads variables with `__` as section nesting) is documented
+with placeholders in [.env.example](.env.example): the SQLite connection string, the backups,
+attachments and Data Protection key directories, `AllowedHosts`, `Cors__Origins__0`, `TZ` for the
+"local day" used by analytics and streaks, plus optional sign-up and rate-limit controls.
+[docs/RAILWAY_DEPLOYMENT.md](docs/RAILWAY_DEPLOYMENT.md) walks through the container deployment
+template.
+
+## Testing
 
 ```powershell
 cd web
-npm test
-npm run lint
-npm run build
-npm run test:e2e
-cd ..\api
-dotnet test TaskFlow.Tests\TaskFlow.Tests.csproj
+npm test            # frontend unit suite (Vitest + Testing Library)
+npm run lint        # Oxlint
+npm run build       # production build (tsc + vite)
+npm run test:e2e    # Playwright end-to-end suite
+cd ../api
+dotnet test TaskFlow.Tests/TaskFlow.Tests.csproj
 ```
 
-The end-to-end suite (Playwright) boots its own API and frontend on ports 5292/5293 with a throwaway
-SQLite database under `web/test-results/e2e-data` — it never touches the development or real data
-folders. See [docs/E2E_TESTING.md](docs/E2E_TESTING.md).
+Latest verification (2026-11-12): frontend unit suite **335/335**, backend suite **366/366**, and
+the Playwright suite **39/39** — registration and session handling, session expiry, task journeys,
+XP awarded exactly once, import/export and backup/restore, multi-account isolation, reminder and
+Kanban/Calendar journeys, a 13-state axe-core WCAG 2.1 A/AA audit, and the keyboard/screen-reader
+suite including the mobile-drawer focus trap. The end-to-end suite boots its own API and frontend
+on ports 5292/5293 against a throwaway SQLite database under `web/test-results/e2e-data` and never
+touches development data (see [docs/E2E_TESTING.md](docs/E2E_TESTING.md)).
 
-The API integration tests use temporary SQLite databases. Do not point tests or migration tooling at a production database.
+## Security and data safety
 
-## Data safety and compatibility
+- Per-user data isolation in the API's data layer, signed and encrypted cookie sessions, upload and
+  import hardening, and rate limiting that identifies real clients behind trusted private-network
+  proxies (see [docs/PRODUCTION_SECURITY.md](docs/PRODUCTION_SECURITY.md) for the trust model and
+  deployment assumptions).
+- No secrets exist in the configuration; the only generated secret material is the Data Protection
+  key ring. [.env.example](.env.example) lists the configuration surface with placeholders only.
+- New features use additive EF Core migrations; imports are validated before writing, restores are
+  transactional and preceded by a safety snapshot, and back up the database before applying
+  migrations in production.
+- Tests never touch development data: unit and API tests use temporary SQLite files and the browser
+  suite uses its own throwaway instance.
 
-- New persistent features use additive EF Core migrations; the existing database and migration history remain in place.
-- Back up production data before deploying a schema change. Verify the backup and restore path before relying on it.
-- Imports are validated before writing and remain additive. Restore replaces the signed-in user's data transactionally and takes a safety snapshot first.
-- New JSON export fields are optional so existing export files remain readable. The `taskflow-export` schema identifier is unchanged.
-- User-owned records are scoped by the authenticated user in the API's data layer.
-- Expected unique-index races (concurrent notification-sync and weekly-goal writers) are handled explicitly and proven by `api/TaskFlow.Tests/ConcurrencyTests.cs`; no database row is ever duplicated or lost by two concurrent tabs.
-
-## Security considerations
-
-- Per-user data isolation, session handling, upload/import hardening, and the forwarded-header trust model (private/loopback proxies only, so rate limiting identifies real clients) are documented in [docs/PRODUCTION_SECURITY.md](docs/PRODUCTION_SECURITY.md), with the deployment assumptions called out there.
-- No secrets exist in the configuration; the only secret material is the auto-generated Data Protection key ring. See [.env.example](.env.example) for the configuration surface.
-- The e2e and CI suites run only against throwaway SQLite instances and never touch the development or real database.
-
-## Project documentation
+## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Database schema](docs/DATABASE_SCHEMA.md)
@@ -174,6 +211,13 @@ The API integration tests use temporary SQLite databases. Do not point tests or 
 - [End-to-end testing](docs/E2E_TESTING.md)
 - [Accessibility audit](docs/ACCESSIBILITY_AUDIT.md)
 - [Production security](docs/PRODUCTION_SECURITY.md)
-- [Deployment](docs/RAILWAY_DEPLOYMENT.md)
+- [Deployment (Railway template)](docs/RAILWAY_DEPLOYMENT.md)
+- [Deployment status](docs/DEPLOYMENT_PROGRESS.md)
+- [GitHub publishing record](docs/GITHUB_PUBLISHING.md)
 - [Implementation progress](docs/IMPLEMENTATION_PROGRESS.md)
+- [Completion audit](docs/COMPLETION_AUDIT.md)
 - [Roadmap](ROADMAP.md)
+
+## License
+
+[MIT](LICENSE) © Kurra Chaithanya

@@ -122,3 +122,20 @@ store should move to server-side paging; the API already supports `status`, `q`,
 | Frontend | Vitest + Testing Library against an in-memory fake of the HTTP API | `web/src/*.test.ts(x)`, `web/src/testing/` |
 | Browser | Playwright against the real frontend + API on an isolated throwaway SQLite instance (ports 5292/5293) — see [E2E_TESTING](E2E_TESTING.md) | `web/e2e`, `npm run test:e2e` |
 | Concurrency | Unique-index race regressions interleaving the real stage/commit paths plus concurrent-HTTP storms | `api/TaskFlow.Tests/ConcurrencyTests.cs` |
+
+## TaskFlow compatibility identifiers
+
+Lifegrid evolves the TaskFlow codebase, and compatibility-sensitive identifiers are retained so that
+existing databases, exports and sessions remain readable:
+
+| Identifier | Value | Why it is kept |
+|---|---|---|
+| Project/namespace names | `TaskFlow.Api`, `TaskFlow.Tests` | Existing solutions, tooling and history reference them; renaming is cosmetic churn |
+| Database filename | `taskflow.db` | An existing database file keeps working as-is; the migration history within it is additive |
+| Backup file naming | `taskflow-backup-<UTC>.json` | Previously created backups stay listable and restorable |
+| Export/import schema | `taskflow-export`, version 2 (reads version 1) | Existing export files remain importable |
+| Browser storage keys | `taskflow-settings`, `taskflow-focus` | Returning users keep their settings and timer state |
+| Sessions | Cookie name, session format and Data Protection identifiers | Existing sessions and Data Protection-generated identifiers remain valid |
+
+User-facing product branding is Lifegrid; the identifiers above appear only in code, storage and
+wire formats.

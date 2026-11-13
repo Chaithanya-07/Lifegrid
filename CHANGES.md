@@ -668,3 +668,39 @@ Actions run yet; live deployment unverified; no NVDA/VoiceOver pass; drag-change
 - Manual NVDA/VoiceOver pass not performed (automated axe + keyboard suites pass).
 - Release archive `lifegrid-source-*.zip` should be regenerated from the final post-documentation
   head before being distributed.
+
+# Increment 8 — Public README review and documentation polish (2026-11-13)
+
+## 1. README assessed and rebuilt
+
+Reviewed the published README as a recruiter / OSS discoverer / user. Findings: correct facts
+throughout, but heavy table-based screenshot layout (which reads as cramped/blank cells on some
+surfaces, notably the GitHub mobile app), duplicated "run locally" content, the long compatibility
+paragraph living in the README instead of docs, verbose interface/technology prose, and a mobile
+screenshot shown at an unreadable inline size. All 10 tracked screenshots were verified: present,
+correctly cased, recent app UI, demo-only data (`demo@lifegrid.test`), no credentials or personal
+information.
+
+## 2. Changes
+
+- README restructured to the agreed 14-section order: tagline, badge, product intro, key features,
+  screenshot gallery, technology, architecture, project structure, getting started, environment
+  configuration, testing, security/data safety, documentation index, license.
+- Screenshot gallery rebuilt **without tables** (inline `<img>` pairs with width percentages and
+  descriptive alt text; tall captures get their own row) so every image renders consistently on
+  desktop web, mobile web and the GitHub mobile app. Rendered-HTML inspection of the current
+  published page confirmed all 9 previously referenced images already resolved correctly
+  (`/Chaithanya-07/Lifegrid/raw/main/docs/screenshots/…`); the tables were the presentation problem.
+- Compatibility details moved to `docs/ARCHITECTURE.md` → new "TaskFlow compatibility identifiers"
+  table; the README links to it.
+- Forwarded-header/Railway wording adjusted to the verified posture (trust model documented; no
+  unverified production-compat claim); no NVDA/VoiceOver or deployment claims.
+- Test figures (335/366/39) verified against the 2026-11-12 runs; env var names verified against
+  `.env.example` and `Program.cs` (`LIFEGRID_DATA_DIRECTORY`);
+  `#taskflow-compatibility-identifiers` anchor verified; all README link targets verified
+  case-exact on disk.
+
+## 3. No application-code change
+
+Documentation-only increment: README.md and docs/ARCHITECTURE.md. No schema, data, auth, or
+feature code touched; existing user data untouched.
