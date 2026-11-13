@@ -10,8 +10,8 @@ anything not verified is listed under "Still open" at the end.
   earlier working name `lifegrid-productivity-app` was replaced by the approved final name).
 - **History preserved:** the push used the existing local history; no repository or history was
   recreated. Default branch `main`; remote `origin` added with the publish push.
-- **Pushes:** the initial publish push landed head `8e59ebf`; documentation and CI-fixer commits
-  followed (`09f7d0c` CI Windows runners, `e370028` README project structure) — always verify
+- **Pushes:** the initial publish push landed head `e2651e2`; documentation and CI-fixer commits
+  followed (`c71cce0` CI Windows runners, `a919d3e` README project structure) — always verify
   `git status` is clean of unintended files before every push.
 - **Source-only archive:** `lifegrid-source-20261112.zip` (gitignored, so it is not in the
   repository) is produced with `git archive` from the final commit — it contains the tracked files
@@ -30,12 +30,22 @@ anything not verified is listed under "Still open" at the end.
 
 | Run | Commit | Result |
 |---|---|---|
-| 43215563868 | `8e59ebf` (first run, ubuntu runners) | Frontend ✅ / Backend ✅ (366 tests) / e2e ❌ — every database-backed request intermittently returned 500 on Linux runners; the same suite passes consistently on Windows |
-| 43220864806 | `09f7d0c` + `e370028` (windows runners) | All three jobs ✅ — 335 unit tests, 366 backend tests, 39 e2e tests, zero flaky or failed attempts |
+| 43215563868 | `e2651e2` (first run, ubuntu runners) | Frontend ✅ / Backend ✅ (366 tests) / e2e ❌ — every database-backed request intermittently returned 500 on Linux runners; the same suite passes consistently on Windows |
+| 43220864806 | `c71cce0` + `a919d3e` (windows runners) | All three jobs ✅ — 335 unit tests, 366 backend tests, 39 e2e tests, zero flaky or failed attempts |
 
 The Linux e2e failure is recorded as an open issue for any future Linux (e.g. container) deployment;
 the intermittent 500 did not reproduce on Windows and its server-side exception was not captured
 (the runner logs do not include the e2e API process console).
+
+## History clean-up (2026-11-13)
+
+Commit messages carried `Co-Authored-By: Claude Code` trailers, which GitHub rendered as a co-author
+avatar on commit pages. At the owner's request, all 10 commit messages were rewritten with a message
+filter that removes those trailer lines; subject lines, bodies, authors, dates and **file contents are
+byte-identical** (verified with `git diff` between the old and new heads — empty), and the repository
+was force-pushed. Old short SHAs referenced above were re-recorded to the rewritten values
+(`8e59ebf→e2651e2`, `09f7d0c→c71cce0`, `e370028→a919d3e`, `7642efd→b6942be`, `cf8c381→f61d1c3`).
+CI runs listed in the table above ran against the same file content before the rewrite.
 
 ## Before every future push
 

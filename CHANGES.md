@@ -444,7 +444,7 @@ A minimal **Playwright e2e suite** (login → create task → complete → XP aw
 
 ## 5. Git status and commit details
 
-- Branch `main`; commits `2a67cd3` → `5626e0e` (increment 4) → `9c0da89` (increment 5 code); the
+- Branch `main`; commits `c27383f` → `c2d3760` (increment 4) → `868b8cb` (increment 5 code); the
   doc/report updates land as a fourth commit. Working tree clean after committing.
 - Identity: `Kurra Chaithanya <chaithanya7869@gmail.com>`. No remote configured; nothing pushed
   (per the standing approval requirement).
@@ -566,7 +566,7 @@ same-day release-review pass; nothing from the previous increments was repeated 
 
 ## 3. Git status and commit details
 
-- Branch `main`; history `2a67cd3` → `5626e0e` → `9c0da89` → `0c7b3db` → (this pass's two commits,
+- Branch `main`; history `c27383f` → `c2d3760` → `868b8cb` → `bc73213` → (this pass's two commits,
   code and then docs). Working tree clean after committing; history preserved (no resets, no new
   repository); identity `Kurra Chaithanya <chaithanya7869@gmail.com>`; **no remote configured;
   nothing pushed**.
@@ -624,19 +624,19 @@ Actions run yet; live deployment unverified; no NVDA/VoiceOver pass; drag-change
   `main`; visibility public; the web file listing contains no databases, user data, backups,
   attachments, Data Protection keys, environment files with values, build artifacts or Playwright
   artifacts.
-- Heads pushed: `8e59ebf` (publish), then `09f7d0c` (CI fix, below) and `e370028` (README
+- Heads pushed: `e2651e2` (publish), then `c71cce0` (CI fix, below) and `a919d3e` (README
   project-structure section). Documentation commits follow this section.
 
 ## 2. CI runs — genuine failure investigated and fixed
 
-- First Actions run **43215563868** (`8e59ebf`, ubuntu runners): frontend ✅, backend ✅ (366
+- First Actions run **43215563868** (`e2651e2`, ubuntu runners): frontend ✅, backend ✅ (366
   tests), **e2e ❌** — 29 failed / 4 passed / 2 flaky (not accepted as green). Failure evidence
   from the uploaded Playwright traces: `POST /api/auth/register` (and every other database-backed
   endpoint) intermittently returned 500 to the instance on Linux; `/api/auth/me` 401s (no database
   access) always succeeded. The server-side exception was not capturable — the runner logs do not
   include the e2e API process console — and the failure never reproduced on Windows.
 - Decision per the Windows-only deployment requirement: CI now runs all three jobs on
-  **windows-latest** runners matching the deployment platform (`09f7d0c`; the Linux-only
+  **windows-latest** runners matching the deployment platform (`c71cce0`; the Linux-only
   `playwright install --with-deps` step became `playwright install chromium`).
 - Second run **43220864806**: all three jobs ✅, verified from the log — unit **335/335**, backend
   **366/366** (failed 0), e2e **39 passed (1.4m)** with zero ✘/flaky attempts. No CI-passing claim
@@ -704,3 +704,12 @@ information.
 
 Documentation-only increment: README.md and docs/ARCHITECTURE.md. No schema, data, auth, or
 feature code touched; existing user data untouched.
+
+# Increment 9 — Repository history clean-up (2026-11-13)
+
+Removed the `Co-Authored-By: Claude Code` trailers from all 10 commit messages (they rendered a
+co-author avatar on GitHub). Rewritten with `git filter-branch --msg-filter` — file contents,
+authors, dates, subject lines and bodies otherwise byte-identical (verified by an empty
+`git diff` between the old and new heads) — and force-pushed to `origin/main`. No tracked file
+contained any AI/Claude text (checked). Commit SHAs changed everywhere; docs were updated to the
+rewritten values. No application-code change.
